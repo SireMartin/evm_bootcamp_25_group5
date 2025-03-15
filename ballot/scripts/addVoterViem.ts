@@ -1,5 +1,5 @@
 import { sepolia } from "viem/chains";
-import { createPublicClient, http, createWalletClient, formatEther, toHex, getContract, hexToString } from "viem";
+import { createPublicClient, http, createWalletClient, formatEther, toHex, getContract, hexToString, Hex, isAddress } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { abi, bytecode } from "../artifacts/contracts/ballot.sol/Ballot.json";
 import * as dotenv from "dotenv";
@@ -9,6 +9,17 @@ const providerApiKey = process.env.INFURA_API_KEY || "";
 const deployerPrivateKey = process.env.PRIVATE_KEY || "";
 
 async function main() {
+
+  const args = process.argv.slice(0, 3)
+  args.forEach(x => console.log(x))
+  
+  let newVoterAddress  = args[2]
+  if(args.length < 2 || !isAddress(newVoterAddress)){
+    console.log(`TERMINATING: you have to provide an address to the script`)
+    return
+  }
+  console.log(`adiding voter with address ${newVoterAddress}`)
+  
   const publicClient = createPublicClient({
     chain: sepolia,
     transport: http(`https://sepolia.infura.io/v3/${providerApiKey}`),
@@ -41,19 +52,21 @@ async function main() {
   for(let i = 0; i < 2; ++i){
     const prop = await publicClient.readContract({
         address: contract.address,
-        abi: abi,
+        abi: contract.abi,
         functionName: "proposals",
         args: [ BigInt(i) ]
     });
-    console.log(`proposal ${i} : ${hexToString(prop[0])}`)
+    console.log(`proposal ${i} : ${prop}`)
+    const [hexName, qty] = prop as [Hex, number];
+    console.log(`name is ${hexToString(hexName)} and qty is ${qty}`)
   }
   console.log(`contract address : ${contract.address}`)
 
   /*const hash = await walletClient.writeContract({
-    abi: abi,
+    abi: contract.abi,
     address: contract.address,
     functionName: "giveRightToVote",
-    args: [ "0x54B66B197Da9207634c33542c7235017ba236CA4" ]
+    args: [ newVoterAddress ]
   });
   console.log(`giveRightToVote to addr hash is ${hash}`);*/
 }
