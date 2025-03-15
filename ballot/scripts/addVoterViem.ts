@@ -1,0 +1,64 @@
+import { sepolia } from "viem/chains";
+import { createPublicClient, http, createWalletClient, formatEther, toHex, getContract, hexToString } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { abi, bytecode } from "../artifacts/contracts/ballot.sol/Ballot.json";
+import * as dotenv from "dotenv";
+dotenv.config();
+
+const providerApiKey = process.env.INFURA_API_KEY || "";
+const deployerPrivateKey = process.env.PRIVATE_KEY || "";
+
+async function main() {
+  const publicClient = createPublicClient({
+    chain: sepolia,
+    transport: http(`https://sepolia.infura.io/v3/${providerApiKey}`),
+  });
+  const blockNumber = await publicClient.getBlockNumber();
+  console.log("Last block number:", blockNumber);
+
+  const account = privateKeyToAccount(`0x${deployerPrivateKey}`);
+  const walletClient = createWalletClient({
+    account,
+    chain: sepolia,
+    transport: http(`https://sepolia.infura.io/v3/${providerApiKey}`),
+  });
+  console.log("WalletClient address:", walletClient.account.address);
+  const balance = await publicClient.getBalance({
+    address: walletClient.account.address,
+  });
+  console.log(
+    "Deployer balance:",
+    formatEther(balance),
+    walletClient.chain.nativeCurrency.symbol
+  );
+
+  const contract = getContract({
+    abi: abi,
+    address: "0x2f10e393076f2637ebfb3cef00ca8faa00cc3288",
+    client: publicClient
+  });
+
+  for(let i = 0; i < 2; ++i){
+    const prop = await publicClient.readContract({
+        address: contract.address,
+        abi: abi,
+        functionName: "proposals",
+        args: [ BigInt(i) ]
+    });
+    console.log(`proposal ${i} : ${hexToString(prop[0])}`)
+  }
+  console.log(`contract address : ${contract.address}`)
+
+  /*const hash = await walletClient.writeContract({
+    abi: abi,
+    address: contract.address,
+    functionName: "giveRightToVote",
+    args: [ "0x54B66B197Da9207634c33542c7235017ba236CA4" ]
+  });
+  console.log(`giveRightToVote to addr hash is ${hash}`);*/
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
