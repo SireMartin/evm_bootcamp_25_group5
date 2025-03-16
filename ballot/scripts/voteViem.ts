@@ -13,12 +13,12 @@ async function main() {
   const args = process.argv.slice(0, 3)
   args.forEach(x => console.log(x))
   
-  let newVoterAddress  = args[2]
-  if(args.length < 2 || !isAddress(newVoterAddress)){
-    console.log(`TERMINATING: you have to provide an address to the script`)
+  let proposalIndex  = args[2]
+  if(args.length < 2 || !Number.isInteger(Number(proposalIndex))){
+    console.log(`TERMINATING: you have to provide a proposal index`)
     return
   }
-  console.log(`adiding voter with address ${newVoterAddress}`)
+  console.log(`adding voter with address ${proposalIndex}`)
   
   const publicClient = createPublicClient({
     chain: sepolia,
@@ -65,8 +65,8 @@ async function main() {
   const hash = await walletClient.writeContract({
     abi: contract.abi,
     address: contract.address,
-    functionName: "giveRightToVote",
-    args: [ newVoterAddress ]
+    functionName: "vote",
+    args: [ proposalIndex ]
   });
   console.log(`giveRightToVote to addr hash is ${hash}`);
 }
