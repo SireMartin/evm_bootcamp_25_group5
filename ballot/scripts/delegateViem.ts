@@ -42,8 +42,8 @@ async function main() {
   console.log("Delegator balance:",formatEther(balance),delegator.chain.nativeCurrency.symbol);
 
   // Check if delegated address is not equal to delegator
-//  if (delegateAddress == delegator.account.address)
-//    throw new Error("Self-delegation is disallowed.");
+  if (delegateAddress == delegator.account.address)
+    throw new Error("Self-delegation is disallowed.");
 
   // Retrieving the deployed contract address
   const contract = getContract({
