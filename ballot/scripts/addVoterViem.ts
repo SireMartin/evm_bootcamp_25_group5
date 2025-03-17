@@ -1,5 +1,6 @@
 import { sepolia } from "viem/chains";
-import { createPublicClient, http, createWalletClient, formatEther, toHex, getContract, hexToString, Hex, isAddress } from "viem";
+import { Address, createPublicClient, createWalletClient, getContract, } from "viem";
+import { http, formatEther, toHex, hexToString, Hex, isAddress } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { abi, bytecode } from "../artifacts/contracts/ballot.sol/Ballot.json";
 import * as dotenv from "dotenv";
@@ -10,16 +11,19 @@ const deployerPrivateKey = process.env.PRIVATE_KEY || "";
 
 async function main() {
 
-  const args = process.argv.slice(0, 3)
+  // Providing proposals
+  const args = process.argv.slice(0,3)
+  if (!args || args.length < 1)
+    throw new Error("Proposals not provided");
   args.forEach(x => console.log(x))
   
+  // Adding voters by address
   let newVoterAddress  = args[2]
-  if(args.length < 2 || !isAddress(newVoterAddress)){
-    console.log(`TERMINATING: you have to provide an address to the script`)
-    return
-  }
-  console.log(`adiding voter with address ${newVoterAddress}`)
+  if(args.length < 2 || !isAddress(newVoterAddress))
+    throw new Error("You have to provide an address to the script!");
+  console.log(`Adding voter with address ${newVoterAddress}`)
   
+  // Creating a public client
   const publicClient = createPublicClient({
     chain: sepolia,
     transport: http(`https://sepolia.infura.io/v3/${providerApiKey}`),
@@ -27,42 +31,42 @@ async function main() {
   const blockNumber = await publicClient.getBlockNumber();
   console.log("Last block number:", blockNumber);
 
+  // Creating a wallet client
   const account = privateKeyToAccount(`0x${deployerPrivateKey}`);
-  const walletClient = createWalletClient({
+  const sender = createWalletClient({
     account,
     chain: sepolia,
     transport: http(`https://sepolia.infura.io/v3/${providerApiKey}`),
   });
-  console.log("WalletClient address:", walletClient.account.address);
-  const balance = await publicClient.getBalance({
-    address: walletClient.account.address,
-  });
-  console.log(
-    "Deployer balance:",
-    formatEther(balance),
-    walletClient.chain.nativeCurrency.symbol
-  );
+  console.log("Sender address:", sender.account.address);
+  const balance = await publicClient.getBalance({address: sender.account.address,});
+  console.log("Sender balance:",formatEther(balance),sender.chain.nativeCurrency.symbol);
 
+  // Retrieving the deployed contract address
   const contract = getContract({
     abi: abi,
     address: "0x2f10e393076f2637ebfb3cef00ca8faa00cc3288",
     client: publicClient
   });
+  console.log(`Contract address : ${contract.address}`)
 
-  for(let i = 0; i < 2; ++i){
+  // Reading informations from the deployed contract
+
+  // Proposals info
+  for(let i = 0; i < 2; ++i) {
     const prop = await publicClient.readContract({
         address: contract.address,
         abi: contract.abi,
         functionName: "proposals",
         args: [ BigInt(i) ]
     });
-    console.log(`proposal ${i} : ${prop}`)
+    console.log(`Proposal ${i} : ${prop}`)
     const [hexName, qty] = prop as [Hex, number];
-    console.log(`name is ${hexToString(hexName)} and qty is ${qty}`)
+    console.log(`Proposal name is ${hexToString(hexName)} and number of votes are ${qty}`)
   }
-  console.log(`contract address : ${contract.address}`)
-
-  const hash = await walletClient.writeContract({
+  
+  // Set right to vote to the address provided
+  const hash = await sender.writeContract({
     abi: contract.abi,
     address: contract.address,
     functionName: "giveRightToVote",
