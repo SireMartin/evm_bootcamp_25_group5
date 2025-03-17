@@ -1,25 +1,32 @@
 import { sepolia } from "viem/chains";
-import { createPublicClient, http, formatEther, getContract, hexToString, Hex } from "viem";
-import { abi } from "../artifacts/contracts/Ballot.sol/Ballot.json";
+import { createPublicClient, createWalletClient, getContract, } from "viem";
+import { http, formatEther, toHex, hexToString, Hex, Address } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { abi, bytecode } from "../artifacts/contracts/ballot.sol/Ballot.json";
 import * as dotenv from "dotenv";
 dotenv.config();
 
 const providerApiKey = process.env.INFURA_API_KEY || "";
 
 async function main() {
-  // Setup public client
+
+  // Creating a public client
   const publicClient = createPublicClient({
     chain: sepolia,
     transport: http(`https://sepolia.infura.io/v3/${providerApiKey}`),
   });
+  const blockNumber = await publicClient.getBlockNumber();
+  console.log("Last block number:", blockNumber);
 
-  // Contract instance
+  // Retrieving the deployed contract address
   const contract = getContract({
     abi: abi,
     address: "0x2f10e393076f2637ebfb3cef00ca8faa00cc3288",
     client: publicClient
   });
+  console.log(`Contract address : ${contract.address}`)
 
+  // Querying results
   console.log("\n--- Ballot Contract Query Results ---\n");
 
   // Get chairperson
