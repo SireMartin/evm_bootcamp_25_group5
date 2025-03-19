@@ -5,7 +5,7 @@ contract MyToken is ERC20, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     constructor() ERC20("MyToken", "MTK") {
-        _mint(msg.sender, 10 * 10 ** decimals());
+        //_mint(msg.sender, 10 * 10 ** decimals());
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 

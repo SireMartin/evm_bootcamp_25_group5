@@ -1,15 +1,46 @@
 import { expect } from "chai";
-import { viem } from "hardhat"
+import { viem } from "hardhat";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+
+const RATIO = 10n;
+const PRICE = 5n;
+
+async function deployContracts(){
+  const publicClient = await viem.getPublicClient();
+  const [deployer, otherAccount] = await viem.getWalletClients();
+  const myTokenContract = await viem.deployContract("MyToken"); //msg.sender
+  //deployer.deployContract({abi: ... }) via viem rechtstreeks
+  const myNftContract = await viem.deployContract("MyNFT");
+  const tokenSaleContract = await viem.deployContract("TokenSale", [RATIO, PRICE, myTokenContract.address, myNftContract.address]);
+  return { myTokenContract, myNftContract, tokenSaleContract, deployer, otherAccount };
+}
+
 describe("NFT Shop", async () => {
   describe("When the Shop contract is deployed", async () => {
     it("defines the ratio as provided in parameters", async () => {
-      throw new Error("Not implemented");
+      const { tokenSaleContract } = await loadFixture(deployContracts);
+      const fetchedRatio = await tokenSaleContract.read.ratio();
+      expect(fetchedRatio).to.eq(RATIO);
     })
     it("defines the price as provided in parameters", async () => {
-      throw new Error("Not implemented");
+      const { tokenSaleContract } = await loadFixture(deployContracts);
+      const fetchedPrice = await tokenSaleContract.read.price();
+      expect(fetchedPrice).to.eq(PRICE);
     });
     it("uses a valid ERC20 as payment token", async () => {
-      throw new Error("Not implemented");
+      const { myTokenContract, tokenSaleContract, deployer, otherAccount } = await loadFixture(deployContracts);
+      const fetchedTotalSupply = await myTokenContract.read.totalSupply()
+      const fetchedDecimals = await myTokenContract.read.decimals()
+      const deployerInitialValue = await myTokenContract.read.balanceOf([deployer.account.address]);
+      expect(fetchedTotalSupply).to.eq(10n * 10n ** BigInt(fetchedDecimals));
+      /*await deployer.writeContract({
+        address: tokenSaleContract.address,
+        abi: tokenSaleContract.abi,
+        functionName: "transferTokens",
+        args: [ otherAccount.account.address, 10n ** BigInt(fetchedDecimals)]
+      });
+      const deployerFinalValue = await myTokenContract.read.balanceOf([deployer.account.address]);
+      expect(BigInt(deployerInitialValue)).to.greaterThan(BigInt(deployerFinalValue));*/
     });
     it("uses a valid ERC721 as NFT collection", async () => {
       throw new Error("Not implemented");
