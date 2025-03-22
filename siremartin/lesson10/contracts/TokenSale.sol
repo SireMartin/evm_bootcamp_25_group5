@@ -17,6 +17,10 @@ contract TokenSale{
         tokenContract = _tokenContract;
         nftContract = _nftContract;
     }
+
+    function buyTokens(uint256 value, account account) public payable {
+
+    }
     
     function transferTokens(address to, uint256 value) public {
         IERC20(tokenContract).transfer(to, value);
