@@ -1,11 +1,13 @@
 import { viem } from "hardhat";
-import { parseEther, formatEther, createPublicClient } from "viem";
+import { parseEther, formatEther, toHex } from "viem";
+import { waitForTransactionReceipt } from "viem/_types/actions/public/waitForTransactionReceipt";
 
 const MINT_VALUE = parseEther("5");
 const acc1 = "0x81D51adbC06827784cE72184Fce6861FFF31D16C";      //trust
 const acc2 = "0xE9A6D4CE4df50DB966ec33Fc86F54581c0D2961E";      //artur
 const acc3 = "0xC35c40Bd72F7528893a259dbf40Fcb266002663e";      //marco
 const acc4 = "0x0936203E154ed749c099fc585770063fAD30BE35";      //me
+const proposalColl = ["Argentina", "Brazil"];
 
 async function main() {
 
@@ -54,7 +56,6 @@ async function main() {
     console.log(`Voting power for Artur is ${await tokenContract.read.getVotes([acc2])} before self delegation`);
     console.log(`Voting power for Marco is ${await tokenContract.read.getVotes([acc3])} before self delegation`);
     console.log(`My voting power is ${await tokenContract.read.getVotes([acc4])} before self delegation\n`);
-        
 }
 
 main().catch(error => {
