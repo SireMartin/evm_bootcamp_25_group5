@@ -6,7 +6,7 @@ async function main(){
     // console.log(`deployer address is ${deployer.account.address}`)
     
     const tokenContract = await viem.getContractAt("MyToken", "0xff198373b61fc6132efe421a47637a17c75986c8");
-    const ballotContract = await viem.getContractAt("TokenizedBallot", "0xdBeDbF6dF739EC8FCd0017BdFe1afe203df566B2");
+    const ballotContract = await viem.getContractAt("TokenizedBallot", "0xe73d2eaac33cc13acdfaad2bf8a536600aadee3a");
     
     for(let i = 0n; i < 2n; ++i){
         const iterProposal = (await ballotContract.read.proposals([i])) as [Hex, bigint];

@@ -6,7 +6,7 @@ async function main(){
     // console.log(`deployer address is ${deployer.account.address}`)
     
     const tokenContract = await viem.getContractAt("MyToken", "0xff198373b61fc6132efe421a47637a17c75986c8");
-    const ballotContract = await viem.getContractAt("TokenizedBallot", "0xdBeDbF6dF739EC8FCd0017BdFe1afe203df566B2");
+    const ballotContract = await viem.getContractAt("TokenizedBallot", "0xe73d2eaac33cc13acdfaad2bf8a536600aadee3a");
     
     console.log(`voting power for trust on token contract is ${await tokenContract.read.getVotes(["0x81D51adbC06827784cE72184Fce6861FFF31D16C"])}`);
     console.log(`voting power for artur on token contract is ${await tokenContract.read.getVotes(["0xE9A6D4CE4df50DB966ec33Fc86F54581c0D2961E"])}`);

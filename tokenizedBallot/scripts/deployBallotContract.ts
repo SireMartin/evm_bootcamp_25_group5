@@ -20,7 +20,7 @@ async function main() {
         [
             proposalColl.map((prop) => toHex(prop, { size: 32 })),
             tokenContract.address,
-            7962771n // We provide the subsequent block number of the last self delegation call on the token contract
+            7965798n // We provide the subsequent block number of the last self delegation call on the token contract
     ]);
     console.log(`TokenizedBallot contract deployed at ${ballotContract.address}`);
 }
