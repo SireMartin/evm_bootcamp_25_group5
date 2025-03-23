@@ -1,5 +1,6 @@
 import { viem } from "hardhat";
 import { parseEther, formatEther, createPublicClient } from "viem";
+import { waitForTransactionReceipt } from "viem/_types/actions/public/waitForTransactionReceipt";
 
 async function main(){
     const publicClient = await viem.getPublicClient();
@@ -14,10 +15,12 @@ async function main(){
     console.log(`voting power for account before voting = ${await ballotContract.read.getRemainingVotingPower([voter.account.address])}`);
     //vote 3 tokens on destination Brazil
     const voteBrazilTx = await ballotContract.write.vote([1n, parseEther("3")]);
+    await publicClient.waitForTransactionReceipt({hash: voteBrazilTx});
     console.log(`voted 3 tokens on brazil with tx ${voteBrazilTx}`);
     console.log(`voting power for account after voting on brazil = ${await ballotContract.read.getRemainingVotingPower([voter.account.address])}`);
     //vote 2 tokens on destination Argentina
     const voteArgentinaTx = await ballotContract.write.vote([0n, parseEther("3")]);
+    await publicClient.waitForTransactionReceipt({hash: voteArgentinaTx});
     console.log(`voted 2 tokens on argentina with tx ${voteArgentinaTx}`);
     console.log(`voting power for account after voting on argentian = ${await ballotContract.read.getRemainingVotingPower([voter.account.address])}`);
 }
