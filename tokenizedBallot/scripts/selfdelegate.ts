@@ -1,21 +1,29 @@
 import { viem } from "hardhat";
-import { parseEther, formatEther, createPublicClient } from "viem";
+import { parseEther, formatEther } from "viem";
 
-async function main(){
+const tokenContractName = "MyToken";
+const tokenContractAddress = "0xff198373b61fc6132efe421a47637a17c75986c8";
+
+async function main() {
+
+    // Creating publicClient and WalletClient
     const publicClient = await viem.getPublicClient();
-    console.log(`the current blocknumber is ${await publicClient.getBlockNumber()}`);
-
     const [delegator] = await viem.getWalletClients();
-    console.log(`self delegator address is ${delegator.account.address}`);
+    console.log(`\nSelf delegator address is ${delegator.account.address}`);
+    console.log(`The current blocknumber is ${await publicClient.getBlockNumber()}`);
 
-    const tokenContract = await viem.getContractAt("MyToken", "0xff198373b61fc6132efe421a47637a17c75986c8");
-    console.log(`fetched contract at address ${tokenContract.address}`);
+    // Interacting with the contract
+    const tokenContract = await viem.getContractAt(tokenContractName, tokenContractAddress);
+    console.log(`Fetched contract at address ${tokenContract.address}`);
 
-    console.log(`voting power before self delegation is ${formatEther(await tokenContract.read.getVotes([delegator.account.address]))}`);
+    // Checking voting power
+    console.log(`\nVoting power before self delegation is ${formatEther(await tokenContract.read.getVotes([delegator.account.address]))}`);
+
+    // Self-delegation transaction
     const selfDelegationTx = await tokenContract.write.delegate([delegator.account.address]);
     const selfDelegationTxReceipt = await publicClient.waitForTransactionReceipt({hash: selfDelegationTx});
-    console.log(`voting power enabled for address ${delegator.account.address} in block ${selfDelegationTxReceipt.blockNumber}`);
-    console.log(`voting power after self delegation is ${formatEther(await tokenContract.read.getVotes([delegator.account.address]))}`);
+    console.log(`Voting power after self delegation is ${formatEther(await tokenContract.read.getVotes([delegator.account.address]))}`);
+    console.log(`Voting power enabled for address ${delegator.account.address} in block ${selfDelegationTxReceipt.blockNumber}\n`);
 }
 
 main().catch(error => {
