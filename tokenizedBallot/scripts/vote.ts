@@ -19,7 +19,7 @@ async function main(){
     console.log(`voted 3 tokens on brazil with tx ${voteBrazilTx}`);
     console.log(`voting power for account after voting on brazil = ${await ballotContract.read.getRemainingVotingPower([voter.account.address])}`);
     //vote 2 tokens on destination Argentina
-    const voteArgentinaTx = await ballotContract.write.vote([0n, parseEther("3")]);
+    const voteArgentinaTx = await ballotContract.write.vote([0n, parseEther("2")]);
     await publicClient.waitForTransactionReceipt({hash: voteArgentinaTx});
     console.log(`voted 2 tokens on argentina with tx ${voteArgentinaTx}`);
     console.log(`voting power for account after voting on argentian = ${await ballotContract.read.getRemainingVotingPower([voter.account.address])}`);
