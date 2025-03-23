@@ -14,6 +14,7 @@ contract TokenizedBallot {
     IMyToken public tokenContract;
     Proposal[] public proposals;
     uint256 public targetBlockNumber;
+    mapping(address => uint256) public votePowerSpent;
 
     constructor(
         bytes32[] memory _proposalNames,
@@ -23,13 +24,20 @@ contract TokenizedBallot {
         tokenContract = IMyToken(_tokenContract);
         targetBlockNumber = _targetBlockNumber;
         // TODO: Validate if targetBlockNumber is in the past
+        assert(block.number > targetBlockNumber);
         for (uint i = 0; i < _proposalNames.length; i++) {
             proposals.push(Proposal({name: _proposalNames[i], voteCount: 0}));
         }
     }
 
     function vote(uint256 proposal, uint256 amount) external {
-        // TODO: Implement vote function
+        require(getRemainingVotingPower(msg.sender) >= amount, "TokenizedBallot: voter is trying to vote with more votes that he/she has");
+        votePowerSpent[msg.sender] += amount;
+        proposals[proposal].voteCount += amount;
+    }
+
+    function getRemainingVotingPower(address voter) public view returns (uint256 votePower_) {
+        votePower_ = tokenContract.getPastVotes(voter, targetBlockNumber) - votePowerSpent[voter];
     }
 
     function winningProposal() public view returns (uint winningProposal_) {
