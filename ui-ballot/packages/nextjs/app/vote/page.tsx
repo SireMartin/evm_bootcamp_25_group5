@@ -1,26 +1,32 @@
 "use client"
 
-import { dataTagSymbol } from "@tanstack/react-query";
 import { NextPage } from "next";
 import { useState } from "react";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
-import { DeployContractData } from "wagmi/query";
-import { Address, AddressInput } from "~~/components/scaffold-eth";
+import { Address, getAddress } from "viem";
+import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { AddressInput } from "~~/components/scaffold-eth";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 
 const Vote: NextPage = () => {
     const { data: shebangContractData } = useDeployedContractInfo({ contractName: "Shebang" });
     const { address, isConnecting, isDisconnected, chain } = useAccount();
-    const [ delegateAddress, setDelegateAddress ] = useState("");
-    const { writeContract } = useWriteContract({
-        abi: shebangContractData?.abi,
-        address: shebangContractData?.address as "0x${string}",
-        functionName: "delegate",
-    });
+    const [delegateAddress, setDelegateAddress] = useState();
+    const { writeContract } = useWriteContract();
+    const waitForTransR = useWaitForTransactionReceipt();
 
-    const delegateTokenContract = (address: "0x${string}") => {
-        console.log(shebangContractData?.address, "/", address  )
-        writeContract({ args: [address as "0x${string}"] });
+    const delegateTokenContract = (address: Address) => {
+        try {
+            //console.log(shebangContractData?.address, "/", address)
+            const data = writeContract({
+                abi: shebangContractData?.abi,
+                address: shebangContractData?.address as Address,
+                functionName: "delegate", 
+                args: [ getAddress(address) ]
+            });
+            
+        } catch (error) {
+            console.error("Transaction failed:", error);
+        }
     };
 
     return (
@@ -38,8 +44,28 @@ const Vote: NextPage = () => {
                         </code>
                     </p>
                     <p className="text-center text-lg">Delegation</p>
-                    <AddressInput value={address as string} onChange={(newAddress) => setDelegateAddress(newAddress)} />
-                    <button className="btn btn-primary" onClick={() => delegateTokenContract(delegateAddress as "0x${string}")}>Delegate to</button>
+                    <AddressInput value={delegateAddress} onChange={(newAddress) => setDelegateAddress(newAddress)} />
+                    <button className="btn btn-primary" onClick={() => delegateTokenContract(delegateAddress as Address)}>Delegate to</button>
+                    <p className="text-center text-lg">Voting</p>
+                    <ul>
+                        {/* 
+                          The curly braces {} mark the boundary between JSX and JavaScript.
+                          Inside the braces, we can write any JavaScript expression.
+                          Here we have an array ["maarten", "is", "the", "best"] 
+                          and we call .map() on it to transform each element into JSX.
+                          
+                          The map callback (element, index) => (...) is JavaScript,
+                          but returns JSX wrapped in parentheses ().
+                          
+                          Inside that JSX, we use {} again to inject the JavaScript 
+                          variables 'index' and 'element' into the rendered output.
+                        */}
+                        {
+                            ["maarten", "is", "the", "best"].map((element, index) => (
+                                <li key={index}>{element}</li>
+                            ))
+                        }
+                    </ul>
                 </div>
             </div>
         </>
