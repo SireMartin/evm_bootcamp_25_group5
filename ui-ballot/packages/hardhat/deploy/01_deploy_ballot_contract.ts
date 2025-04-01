@@ -18,28 +18,11 @@ const deployTokenContract: DeployFunction = async function (hre: HardhatRuntimeE
     const { deployer } = await hre.getNamedAccounts();
     const { deploy } = hre.deployments;
 
-    await deploy("Shebang", {
-        from: deployer,
-        // Contract constructor arguments
-        args: [],
-        log: true,
-        // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
-        // automatically mining the contract deployment transaction. There is no effect on live networks.
-        autoMine: true,
-    });
-    const tokenContract = await hre.ethers.getContract<Contract>("Shebang", deployer);
-    console.log("👋 Token name :", await tokenContract.name());
-    console.log(`token contract address = ${await tokenContract.getAddress()}`)
+    console.log(`deployer address : ${deployer}`)
 
-    const mintTxAcc1 = await tokenContract.mint(acc1, MINT_VALUE);//Trust
-    await mintTxAcc1.wait();
-    const mintTxAcc2 = await tokenContract.mint(acc2, MINT_VALUE);//Artur
-    await mintTxAcc2.wait();
-    const mintTxAcc3 = await tokenContract.mint(acc3, MINT_VALUE);//Marco
-    await mintTxAcc3.wait();
-    const mintTxAcc4 = await tokenContract.mint(acc4, MINT_VALUE);//Me
-    await mintTxAcc4.wait();
-    
+    const tokenContract = await hre.ethers.getContract<Contract>("Shebang", deployer);
+    console.log(`TokenContract fetched at ${await tokenContract.getAddress()}`);
+
     // Deploy the TokenizedBallot contract with a block reference after the self delegations
     await deploy("TokenizedBallot",{
         from: deployer,
@@ -52,11 +35,12 @@ const deployTokenContract: DeployFunction = async function (hre: HardhatRuntimeE
     });
     const ballotContract = await hre.ethers.getContract<Contract>("TokenizedBallot", deployer);
     console.log("👋 targetBlockNumber :", await ballotContract.targetBlockNumber());
-    console.log(`TokenizedBallot contract deployed at ${ballotContract.address}`);
+    console.log(`TokenizedBallot contract deployed at ${await ballotContract.getAddress()}`);
 }
 
 export default deployTokenContract;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
 // e.g. yarn deploy --tags YourContract
-deployTokenContract.tags = ["TokenContract"];
+deployTokenContract.tags = ["TokenizedBallot"];
+
