@@ -4,7 +4,7 @@ import { authOptions } from "../auth/[...nextauth]/route";
 import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { parseEther } from "viem";
-import { foundry } from "viem/chains";
+import { foundry, hardhat } from "viem/chains";
 
 // This is a secret key that should be stored in environment variables
 const API_SECRET = process.env.API_SECRET || "your-secret-key";
@@ -44,16 +44,20 @@ export async function POST(req: Request) {
     
     // Create public client
     const publicClient = createPublicClient({
-      chain: foundry,
+      chain: hardhat,
       transport: http(),
+//      chain: sepolia,
+//      transport: http(`https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`),  
     });
 
     // Create wallet client
     const account = privateKeyToAccount(PRIVATE_KEY);
     const walletClient = createWalletClient({
       account,
-      chain: foundry,
+      chain: hardhat,
       transport: http(),
+//      chain: sepolia,
+//      transport: http(`https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`),  
     });
 
     // Get contract ABI and address
