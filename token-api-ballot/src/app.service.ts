@@ -102,12 +102,12 @@ export class AppService {
     return hasRole;
   }
 
-//  async mintTokens(address: string, amount: number) {
-  async mintTokens(address: string) {
-    const amount = parseEther("5");
+  async mintTokens(address: string, amount: number) {
+//  async mintTokens(address: string) {
+//    const amount = parseEther("5");
     const mintTx = await this.walletClient.writeContract({
       address: this.getContractAddress() as Address,
-//      amount: amount as Number,
+      amount: amount as Number,
       abi: tokenJson.abi,
       functionName: 'mint',
       args: [this.walletClient.account.address, amount],
