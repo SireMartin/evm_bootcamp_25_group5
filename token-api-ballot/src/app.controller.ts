@@ -47,12 +47,12 @@ export class AppController {
     return {result: await this.appService.checkMinterRole(address)};
   }
 
-  @Post('mint-tokens')
-  async mintTokens(@Body() body: MintTokenDto) {
-    return {result: await this.appService.mintTokens(body.address)};
-//  @Post('mint-tokens/:amount')
-//  async mintTokens(@Body() body: MintTokenDto, @Param('amount') amount: number) {
-//    return {result: await this.appService.mintTokens(body.address, amount)};
+//  @Post('mint-tokens')
+//  async mintTokens(@Body() body: MintTokenDto) {
+//    return {result: await this.appService.mintTokens(body.address)};
+  @Post('mint-tokens/:amount')
+  async mintTokens(@Body() body: MintTokenDto, @Param('amount') amount: number) {
+    return {result: await this.appService.mintTokens(body.address, amount)};
   }
 
 }
