@@ -18,7 +18,8 @@ export const MintTest = () => {
     setStatus("Minting tokens...");
 
     try {
-      const result = await requestMint(address, parseFloat(amount));
+    //  const result = await requestMint(address, parseFloat(amount));
+      const result = await requestMint(address, parseInt(amount));
       if (result.success) {
         setStatus(`Success! Transaction hash: ${result.transactionHash}`);
       } else {
@@ -42,7 +43,8 @@ export const MintTest = () => {
           onChange={e => setAmount(e.target.value)}
           className="input input-bordered"
           min="0"
-          step="0.1"
+//          step="0.1"
+          step="1"
         />
       </div>
       <button
