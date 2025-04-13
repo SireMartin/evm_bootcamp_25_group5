@@ -24,15 +24,14 @@ contract TokenizedBallot {
     ) {
         tokenContract = IMyToken(_tokenContract);
         targetBlockNumber = _targetBlockNumber;
-        // Validate if targetBlockNumber is in the past
-        assert(block.number >= targetBlockNumber);
+        assert(block.number >= targetBlockNumber);                                  // validate if targetBlockNumber is in the past
         for (uint i = 0; i < _proposalNames.length; i++) {
             proposals.push(Proposal({name: _proposalNames[i], voteCount: 0}));
         }
     }
 
     function vote(uint256 proposal, uint256 amount) external {
-        require(getRemainingVotingPower(msg.sender) >= amount, "TokenizedBallot: voter is trying to vote with more votes that he/she has");
+        require(getRemainingVotingPower(msg.sender) >= amount, "TokenizedBallot: voter is trying to vote with more votes that he/she has.");
         votePowerSpent[msg.sender] += amount;
         proposals[proposal].voteCount += amount;
         emit Vote(msg.sender, proposal, amount);
@@ -50,7 +49,7 @@ contract TokenizedBallot {
                 winningProposal_ = p;
             }
         }
-        require(winningVoteCount > 0, "Nobody has been voting yet");
+        require(winningVoteCount > 0, "Nobody has voted yet.");
     }
 
     function winnerName() external view returns (bytes32 winnerName_) {
