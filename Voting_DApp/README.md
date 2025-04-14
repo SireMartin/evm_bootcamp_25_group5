@@ -10,10 +10,10 @@ A decentralized voting application with a frontend built on scaffold-eth and a b
 
 ## Prerequisites
 
-- Node.js (v14 or higher)
-- npm
-- yarn
-- Nestjs
+- [Node.js](https://nodejs.org/en/docs/guides/getting-started-guide/)
+- [npm](https://docs.npmjs.com/cli/v9/configuring-npm/install)
+- [yarn](https://yarnpkg.com/getting-started/install)
+- [Nestjs](https://docs.nestjs.com/)
 - MetaMask wallet with some Sepolia ETH
 - Basic understanding of Ethereum and Web3
 
