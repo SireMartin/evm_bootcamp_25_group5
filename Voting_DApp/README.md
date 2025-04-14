@@ -83,6 +83,14 @@ A decentralized voting application with a frontend built on scaffold-eth and a b
   cd <project-name>
   ```
 
+- **<span style="font-size: 16px;">Add the Swagger Module</span>**
+
+  Install `@nestjs/swagger` to your project
+
+  ```bash
+  npm install --save @nestjs/swagger
+  ```
+
 - **<span style="font-size: 16px;">Copy the following files</span>**
 
   Copy the controllers file
