@@ -105,6 +105,19 @@ A decentralized voting application with a frontend built on scaffold-eth and a b
   "resolveJsonModule": true
   ```
 
+- **<span style="font-size: 16px;">Add environment variables</span>**
+
+  Add `dotenv` to your project and configure it at `main.ts`
+
+  ```bash
+  npm i --save dotenv
+  ```
+
+  ```typescript
+  ...
+  import 'dotenv/config';
+  ```
+
 - **<span style="font-size: 16px;">Copy the following files</span>**
 
   Copy the controllers file
