@@ -153,7 +153,7 @@ A decentralized voting application with a frontend built on scaffold-eth and a b
   Open one terminal window, move to the nest `project-name` folder and run the following command to activate the server (backend)
 
   ```bash
-  npm run start:watch
+  npm run start:dev
   ```
 
   > **NOTE:** the watch option allow the backend to restart automatically if a change on main, services or controllers happened. If a change is made on the `.env` file used to process key variables, the server doesn't restart automatically, it needs to be restarted manually
