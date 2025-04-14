@@ -210,6 +210,10 @@ A decentralized voting application with a frontend built on scaffold-eth and a b
     > - refresh the frontend webpage to see the results updated (queried to the contract deployed)
     > - kill and run again the backend in order to have updated info (modifying the `TOKEN_ADDRESS` variable in the `.env` file doesn't trigger the backend to restart automatically)
 
+- **<span style="font-size: 16px;">Backend interaction</span>**
+
+  Interact with the backend (`http://localhost:3001/api`)
+
 - **<span style="font-size: 16px;">Minting tokens</span>**
 
   Start minting tokens to each address and refresh the frontend webpage to see updated info (user token balance, token total supply)
