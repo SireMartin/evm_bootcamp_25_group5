@@ -184,7 +184,7 @@ A decentralized voting application with a frontend built on scaffold-eth and a b
   npm run start:dev
   ```
 
-  > **NOTE:** the watch option allow the backend to restart automatically if a change on main, services or controllers happened. If a change is made on the `.env` file used to process key variables, the server doesn't restart automatically, it needs to be restarted manually
+  > **NOTE:** the `dev` option allow the backend to run in "watch mode", restarting automatically if a change on main, services or controllers happened. If a change is made on the `.env` file used to process key variables, the server doesn't restart automatically, it needs to be restarted manually
 
 - **<span style="font-size: 16px;">Terminal for frontend application</span>**
 
