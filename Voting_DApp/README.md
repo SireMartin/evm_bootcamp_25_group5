@@ -48,21 +48,21 @@ A decentralized voting application with a frontend built on scaffold-eth and a b
     Copy the contract files:
 
     ```bash
-    .../packages/hardhat/contracts/TokenContract.sol
-    .../packages/hardhat/contracts/TokenizedBallot.sol
+    .../scaffold-eth-2/packages/hardhat/contracts/TokenContract.sol
+    .../scaffold-eth-2/packages/hardhat/contracts/TokenizedBallot.sol
     ```
 
     Copy the contract deployment scripts:
 
     ```bash
-    .../packages/hardhat/contracts/TokenContract.sol
-    .../packages/hardhat/contracts/TokenizedBallot.sol
+    .../scaffold-eth-2/packages/hardhat/deploy/00_deploy_token_contract.ts
+    ...scaffold-eth-2/packages/hardhat/deploy/01_deploy_ballot_contract.ts
     ```
 
     Copy the main Next.js page:
 
     ```bash
-    .../packages/nextjs/app/page.tsx
+    .../scaffold-eth-2/packages/nextjs/app/page.tsx
     ```
 
 ### 2. Getting Started - Backend setup
