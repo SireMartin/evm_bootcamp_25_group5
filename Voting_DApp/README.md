@@ -13,7 +13,7 @@ A decentralized voting application with a frontend built on scaffold-eth and a b
 - [Node.js](https://nodejs.org/en/docs/guides/getting-started-guide/)
 - [npm](https://docs.npmjs.com/cli/v9/configuring-npm/install)
 - [yarn](https://yarnpkg.com/getting-started/install)
-- [Nestjs](https://docs.nestjs.com/)
+- [NestJS](https://docs.nestjs.com/)
 - MetaMask wallet with some Sepolia ETH
 - Basic understanding of Ethereum and Web3
 
