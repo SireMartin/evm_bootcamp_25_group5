@@ -91,6 +91,12 @@ A decentralized voting application with a frontend built on scaffold-eth and a b
   npm install --save @nestjs/swagger
   ```
 
+- **<span style="font-size: 16px;">Install viem</span>**
+
+  ```bash
+  npm i viem
+  ```
+
 - **<span style="font-size: 16px;">Copy the following files</span>**
 
   Copy the controllers file
