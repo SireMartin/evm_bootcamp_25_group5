@@ -97,6 +97,14 @@ A decentralized voting application with a frontend built on scaffold-eth and a b
   npm i viem
   ```
 
+- **<span style="font-size: 16px;">Solve ABI parsing</span>**
+  
+  Add the `resolveJsonModule` configuration to `compilerOptions` inside `tsconfig.json`
+
+  ```json
+  "resolveJsonModule": true
+  ```
+
 - **<span style="font-size: 16px;">Copy the following files</span>**
 
   Copy the controllers file
