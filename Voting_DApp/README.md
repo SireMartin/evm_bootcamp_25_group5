@@ -155,7 +155,14 @@ A decentralized voting application with a frontend built on scaffold-eth and a b
 
 - **<span style="font-size: 16px;">Check the working environment</span>**
 
-  The project is ready for working on the Sepolia testnet environment. If you want to change and test it on Hardhat, modify the following file
+  The project is intended for working on the Sepolia testnet environment. To this aim, modify the following file
+
+  ```bash
+  .../scaffold-eth-2/packages/nextjs/scaffold.config.ts
+  targetNetworks: [chains.sepolia],
+  ```
+
+  If you want to test it on Hardhat, leave it unmodified
 
   ```bash
   .../scaffold-eth-2/packages/nextjs/scaffold.config.ts
