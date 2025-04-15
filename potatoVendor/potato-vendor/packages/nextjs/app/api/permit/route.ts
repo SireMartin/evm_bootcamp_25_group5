@@ -48,6 +48,11 @@ const permitABI = [
         "internalType": "bytes32",
         "name": "s",
         "type": "bytes32"
+      },
+      {
+        "internalType": "string",
+        "name": "email",
+        "type": "string"
       }
     ],
     "name": "permit",
@@ -63,7 +68,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     console.log("[DEBUG] Request body:", body);
 
-    const { owner, spender, value, deadline, v, r, s } = body;
+    const { owner, spender, value, deadline, v, r, s, email } = body;
     console.log("[DEBUG] Extracted parameters:", { 
       owner, 
       spender, 
@@ -71,7 +76,8 @@ export async function POST(request: Request) {
       deadline: deadline.toString(),
       v: v.toString(),
       r,
-      s
+      s,
+      email
     });
 
     // Validate parameters
@@ -107,7 +113,8 @@ export async function POST(request: Request) {
       deadline: BigInt(deadline).toString(),
       v: parseInt(v),
       r,
-      s
+      s,
+      email
     });
 
     const tx = await contract.permit(
@@ -117,7 +124,8 @@ export async function POST(request: Request) {
       BigInt(deadline),
       parseInt(v),
       r,
-      s
+      s,
+      email
     );
     console.log("[DEBUG] Permit transaction sent, hash:", tx.hash);
 

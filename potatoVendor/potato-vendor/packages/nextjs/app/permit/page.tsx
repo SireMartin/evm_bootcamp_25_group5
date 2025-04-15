@@ -161,6 +161,7 @@ export default function PermitPage() {
           v,
           r,
           s,
+          email: "potato@potato.com"
         }),
       });
 
