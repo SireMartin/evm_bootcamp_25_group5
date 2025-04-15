@@ -1,25 +1,39 @@
 import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { Potato } from "../typechain-types";
+import { ethers } from "hardhat";
 
 const deployPotatoToken: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  // Debug: Get deployer account
   const { deployer } = await hre.getNamedAccounts();
+  console.log(`Deployer: ${deployer}`);
   const { deploy } = hre.deployments;
 
-  await deploy("Potato", {
+  // Debug: Deploy contract
+  const deployment = await deploy("Potato", {
     from: deployer,
     args: [deployer, deployer],
     log: true,
     autoMine: true,
   });
+  console.log(`Contract deployed at: ${deployment.address}`);
 
-  // Get the deployed contract
-  const PotatoToken = await hre.ethers.getContract("Potato", deployer);
+  // Debug: Get contract instance
+  const PotatoToken = (await ethers.getContractAt("Potato", deployment.address)) as Potato;
   
-  // Mint initial supply to deployer
+  // Debug: Mint initial supply
   const initialSupply = hre.ethers.parseEther("1000000"); // 1 million tokens
+  console.log(`Minting ${initialSupply.toString()} tokens to ${deployer}`);
   await PotatoToken.mint(deployer, initialSupply);
+  console.log("Minting complete");
+
+  // Debug: Grant MINTER_ROLE
+  const minterRole = ethers.id("MINTER_ROLE");
+  console.log(`MINTER_ROLE hash: ${minterRole}`);
+  await PotatoToken.grantRole(minterRole, "0xE270dE780dB6B711Cf089e57AF731Ef761ba1Ea2");
+  console.log("Role granted");
   
-  console.log("PotatoToken deployed and initial supply minted");
+  console.log("Deployment complete");
 };
 
 export default deployPotatoToken;
