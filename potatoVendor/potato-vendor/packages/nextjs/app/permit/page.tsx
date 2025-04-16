@@ -104,8 +104,12 @@ export default function PermitPage() {
       });
 
       // Get the contract address from deployedContracts
-      const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-      console.log("[DEBUG] Using contract address:", contractAddress);
+      const contractAddress = process.env.NEXT_PUBLIC_POTATO_TOKEN_ADDRESS;
+      if (!ethers.isAddress(contractAddress)) {
+        console.error("[ERROR] Invalid token contract address:", spender);
+        return;
+      }
+      console.log("[DEBUG] Using POTATO_TOKEN_ADDRESS :", contractAddress);
 
       // Prepare permit data
       const domain = {
@@ -120,7 +124,7 @@ export default function PermitPage() {
         owner: address,
         spender,
         value: parseEther(amount),
-        nonce: currentNonce,
+        nonce: BigInt(currentNonce),
         deadline: BigInt(newDeadline),
       };
       console.log("[DEBUG] Permit message:", {

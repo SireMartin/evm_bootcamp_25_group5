@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     const contractAddress = process.env.NEXT_PUBLIC_POTATO_TOKEN_ADDRESS;
     console.log("[DEBUG] Contract address:", contractAddress);
     if (!contractAddress) {
-      console.error("[ERROR] Contract address not found in environment variables");
+      console.error("[ERROR] POTATO_TOKEN_ADDRESS not found in environment variables");
       return NextResponse.json(
         { error: "Contract address not configured" },
         { status: 500 }
