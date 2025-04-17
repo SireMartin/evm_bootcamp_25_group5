@@ -72,12 +72,19 @@ export default function PermitPage() {
       }
 
       // Get the contract address from environment variable
-      const spender = process.env.NEXT_PUBLIC_POTATO_TOKEN_ADDRESS;
-      if (!ethers.isAddress(spender)) {
-        console.error("[ERROR] Invalid token contract address:", spender);
+      const tokenContract = process.env.NEXT_PUBLIC_POTATO_TOKEN_ADDRESS;
+      if (!ethers.isAddress(tokenContract)) {
+        console.error("[ERROR] Invalid token contract address:", tokenContract);
         return;
       }
-      console.log("[DEBUG] Using POTATO_TOKEN_ADDRESS as spender:", spender);
+      console.log("[DEBUG] Using POTATO_TOKEN_ADDRESS as spender:", tokenContract);
+      // Get the contract address from environment variable
+      const spender = process.env.NEXT_PUBLIC_POTATO_VENDOR_ADDRESS;
+      if (!ethers.isAddress(spender)) {
+        console.error("[ERROR] Invalid vendor contract address:", spender);
+        return;
+      }
+      console.log("[DEBUG] Using POTATO_VENDOR_ADDRESS as spender:", spender);
 
       console.log("[DEBUG] Addresses and nonce:", {
         owner: address,
@@ -107,7 +114,7 @@ export default function PermitPage() {
         name: "Potato",
         version: "1",
         chainId: 31337, // Hardhat network ID
-        verifyingContract: spender,
+        verifyingContract: tokenContract,
       };
       console.log("[DEBUG] Domain data:", domain);
 
