@@ -3,15 +3,19 @@
 pragma solidity ^0.8.20;
 
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract PotatoVendor is AccessControl {
-    constructor(address defaultAdmin)
+    address private _potatoTokenAddress;
+
+    constructor(address defaultAdmin, address potatoTokenAddress)
     {
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
+        _potatoTokenAddress = potatoTokenAddress;
     }
 
-    function getApprovedAmount(address buyer, uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        //todo: transfer the approved amount to this contract
+    function getApprovedAmount(address buyer, uint256 amount) public {
+        IERC20(_potatoTokenAddress).transferFrom(buyer, address(this), amount);
     }
 
     function reserveLocker(address buyer) public onlyRole(DEFAULT_ADMIN_ROLE) {

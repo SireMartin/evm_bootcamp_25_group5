@@ -6,32 +6,62 @@ dotenv.config();
 
 // Configuration
 const RPC_URL = process.env.RPC_URL || 'http://localhost:8545';
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const CONTRACT_ABI = process.env.POTATO_CONTRACT_ABI ? JSON.parse(process.env.POTATO_CONTRACT_ABI) : [];
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const POTATO_TOKEN_ADDRESS = process.env.POTATO_TOKEN_ADDRESS;
+const POTATO_TOKEN_ABI = process.env.POTATO_TOKEN_ABI ? JSON.parse(process.env.POTATO_TOKEN_ABI) : [];
+const POTATO_VENDOR_ADDRESS = process.env.POTATO_VENDOR_ADDRESS;
+const POTATO_VENDOR_ABI = process.env.POTATO_VENDOR_ABI ? JSON.parse(process.env.POTATO_VENDOR_ABI) : [];
 
 async function main() {
-    if (!CONTRACT_ADDRESS || !CONTRACT_ABI) {
-        console.error('Please set CONTRACT_ADDRESS and CONTRACT_ABI in your .env file');
+    if (!POTATO_TOKEN_ADDRESS || !POTATO_TOKEN_ABI) {
+        console.error('Please set POTATO_TOKEN_ADDRESS and POTATO_TOKEN_ABI in your .env file');
+        process.exit(1);
+    }
+    if (!POTATO_VENDOR_ADDRESS || !POTATO_VENDOR_ABI) {
+        console.error('Please set POTATO_VENDOR_ADDRESS and POTATO_VENDOR_ABI in your .env file');
+        process.exit(1);
+    }
+    if (!PRIVATE_KEY) {
+        console.error('Please set PRIVATE_KEY in your .env file');
         process.exit(1);
     }
 
-    // Create provider
+    // Create provider and wallet
     const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
     
-    // Create contract instance
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+    // Create contract instance with signer
+    const tokenContract = new ethers.Contract(POTATO_TOKEN_ADDRESS, POTATO_TOKEN_ABI, provider);
+    const vendorContract = new ethers.Contract(POTATO_VENDOR_ADDRESS, POTATO_VENDOR_ABI, wallet);
 
     console.log('Starting daemon...');
-    console.log(`Listening to events from contract: ${CONTRACT_ADDRESS}`);
+    console.log(`Listening to events from contract: ${POTATO_TOKEN_ADDRESS}`);
+    console.log(`Using wallet address: ${wallet.address}`);
 
     // Listen to all events
-    contract.on('*', (event) => {
+    tokenContract.on('*', async (event) => {
         console.log('Event received:', {
             name: event.eventName,
             args: event.args,
             blockNumber: event.blockNumber,
             transactionHash: event.log.transactionHash
         });
+
+        if(event.eventName !== 'BuyPotato') {
+            return;
+        }
+
+        try {
+            //call the potatoVendor contract to acquire the buyer tokens to it
+            console.log('Acquiring buyer tokens...');
+            
+            const tx = await vendorContract.getApprovedAmount(event.args.buyer, event.args.amount);
+            console.log('Transaction sent:', tx.hash);
+            await tx.wait();
+            console.log('Transaction confirmed');
+        } catch (error) {
+            console.error('Error sending transaction:', error);
+        }
     });
 
     // Keep the process running
