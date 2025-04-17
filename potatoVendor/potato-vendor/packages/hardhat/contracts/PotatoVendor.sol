@@ -7,19 +7,31 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract PotatoVendor is AccessControl {
     address private _potatoTokenAddress;
+    mapping(uint8 => address) public _lockerToBuyer;
 
-    constructor(address defaultAdmin, address potatoTokenAddress)
+    constructor(address deployer, address potatoTokenAddress)
     {
-        _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
+        _grantRole(DEFAULT_ADMIN_ROLE, deployer);
         _potatoTokenAddress = potatoTokenAddress;
     }
 
-    function getApprovedAmount(address buyer, uint256 amount) public {
+    function getApprovedAmount(address buyer, uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
         IERC20(_potatoTokenAddress).transferFrom(buyer, address(this), amount);
     }
 
-    function reserveLocker(address buyer) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        //todo: map the buyer address to a locker number
+    function reserveLocker(address buyer) public onlyRole(DEFAULT_ADMIN_ROLE) returns (uint8) {
+        //map the buyer address to an available locker number
+        unchecked {
+            uint8 lockerNumber = uint8(block.prevrandao % 255);
+            for(uint8 i = 0; i < 256; ++i) {
+                if(_lockerToBuyer[lockerNumber] == address(0)) {
+                    _lockerToBuyer[lockerNumber] = buyer;
+                    return lockerNumber;
+                }
+                ++lockerNumber;
+            }
+            revert("No available lockers");
+        }
     }
 
     function openLocker(string memory signedMsg, uint256 lockerNumber) public onlyRole(DEFAULT_ADMIN_ROLE) returns (bool) {

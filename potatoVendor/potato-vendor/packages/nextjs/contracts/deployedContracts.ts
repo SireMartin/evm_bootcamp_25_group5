@@ -882,7 +882,7 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "address",
-              name: "defaultAdmin",
+              name: "deployer",
               type: "address",
             },
             {
@@ -998,6 +998,25 @@ const deployedContracts = {
               internalType: "bytes32",
               name: "",
               type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint8",
+              name: "",
+              type: "uint8",
+            },
+          ],
+          name: "_lockerToBuyer",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
           stateMutability: "view",
@@ -1133,7 +1152,13 @@ const deployedContracts = {
             },
           ],
           name: "reserveLocker",
-          outputs: [],
+          outputs: [
+            {
+              internalType: "uint8",
+              name: "",
+              type: "uint8",
+            },
+          ],
           stateMutability: "nonpayable",
           type: "function",
         },

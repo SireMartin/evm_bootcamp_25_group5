@@ -54,11 +54,23 @@ async function main() {
         try {
             //call the potatoVendor contract to acquire the buyer tokens to it
             console.log('Acquiring buyer tokens...');
-            
-            const tx = await vendorContract.getApprovedAmount(event.args.buyer, event.args.amount);
-            console.log('Transaction sent:', tx.hash);
-            await tx.wait();
+            const txApproveAmount = await vendorContract.getApprovedAmount(event.args.buyer, event.args.amount);
+            console.log('Transaction sent:', txApproveAmount.hash);
+            await txApproveAmount.wait();
             console.log('Transaction confirmed');
+
+            //call the potatoVendor contract to reserve a locker
+            console.log('Reserving locker...');
+            const txReserveLocker = await vendorContract.reserveLocker(event.args.buyer);
+            const receipt = await txReserveLocker.wait();
+            console.log('Transaction confirmed');
+
+            // Get the raw return value
+            const result = await provider.call({
+                to: POTATO_VENDOR_ADDRESS,
+                data: txReserveLocker.data
+            });
+            console.log('Reserved locker:', ethers.toNumber(result));
         } catch (error) {
             console.error('Error sending transaction:', error);
         }
