@@ -6,6 +6,8 @@ import { parseEther } from "viem";
 import { Address, AddressInput, EtherInput } from "~~/components/scaffold-eth";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth/useScaffoldReadContract";
 import { ethers } from "ethers";
+import deployedContracts from "~~/contracts/deployedContracts";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 
 // ERC20 Permit type data
 const PERMIT_TYPES = {
@@ -22,6 +24,7 @@ type TransactionStatus = "idle" | "pending" | "success" | "error";
 
 export default function PermitPage() {
   const { address } = useAccount();
+  const { targetNetwork } = useTargetNetwork();
   const [amount, setAmount] = useState<string>("0");
   const [deadline, setDeadline] = useState<number>(0);
   const [nonce, setNonce] = useState<bigint>(0n);
@@ -72,14 +75,15 @@ export default function PermitPage() {
       }
 
       // Get the contract address from environment variable
-      const tokenContract = process.env.NEXT_PUBLIC_POTATO_TOKEN_ADDRESS;
+      const tokenContract = deployedContracts[targetNetwork.id as keyof typeof deployedContracts].Potato.address as `0x${string}`;
       if (!ethers.isAddress(tokenContract)) {
         console.error("[ERROR] Invalid token contract address:", tokenContract);
         return;
       }
       console.log("[DEBUG] Using POTATO_TOKEN_ADDRESS as spender:", tokenContract);
+
       // Get the contract address from environment variable
-      const spender = process.env.NEXT_PUBLIC_POTATO_VENDOR_ADDRESS;
+      const spender = deployedContracts[targetNetwork.id as keyof typeof deployedContracts].PotatoVendor.address as `0x${string}`;
       if (!ethers.isAddress(spender)) {
         console.error("[ERROR] Invalid vendor contract address:", spender);
         return;
@@ -113,7 +117,7 @@ export default function PermitPage() {
       const domain = {
         name: "Potato",
         version: "1",
-        chainId: 31337, // Hardhat network ID
+        chainId: targetNetwork.id,
         verifyingContract: tokenContract,
       };
       console.log("[DEBUG] Domain data:", domain);
@@ -222,7 +226,7 @@ export default function PermitPage() {
               Your Address: <Address address={address} />
             </p>
             <p className="text-lg">
-              Spender Address: <Address address={process.env.NEXT_PUBLIC_POTATO_VENDOR_ADDRESS} />
+              Spender Address: <Address address={deployedContracts[targetNetwork.id as keyof typeof deployedContracts].PotatoVendor.address as `0x${string}`} />
             </p>
             <p className="text-lg">
               Current Nonce: {currentNonce?.toString()}
