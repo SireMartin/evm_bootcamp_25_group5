@@ -7,6 +7,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
 contract Potato is ERC20, AccessControl, ERC20Permit {
+
     event BuyPotato(address indexed buyer, uint256 amount, string email);
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -33,8 +34,10 @@ contract Potato is ERC20, AccessControl, ERC20Permit {
         bytes32 s,
         string memory email
     ) public onlyRole(MINTER_ROLE) {
+        require(block.timestamp <= deadline, "Permit: expired deadline.");
         permit(owner, spender, value, deadline, v, r, s);
-        //TODO: emit event for buying potato so the stand-alone back-end can confirm the order to the buyer, transfer the tokens and determine a locker number
+        // Emit event for buying potato so the stand-alone back-end can confirm the order to the buyer, transfer the tokens and determine a locker number
         emit BuyPotato(owner, value, email);
     }
+
 }
