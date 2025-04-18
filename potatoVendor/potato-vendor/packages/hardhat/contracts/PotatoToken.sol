@@ -34,7 +34,6 @@ contract Potato is ERC20, AccessControl, ERC20Permit {
         bytes32 s,
         string memory email
     ) public onlyRole(MINTER_ROLE) {
-        require(block.timestamp <= deadline, "Permit: expired deadline.");
         permit(owner, spender, value, deadline, v, r, s);
         // Emit event for buying potato so the stand-alone back-end can confirm the order to the buyer, transfer the tokens and determine a locker number
         emit BuyPotato(owner, value, email);

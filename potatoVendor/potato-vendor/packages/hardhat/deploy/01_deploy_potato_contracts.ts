@@ -25,7 +25,7 @@ const deployPotatoToken: DeployFunction = async function (hre: HardhatRuntimeEnv
   const initialSupply = hre.ethers.parseEther("1000000"); // 1 million tokens
   console.log(`Minting ${initialSupply.toString()} tokens to ${deployer}`);
   await PotatoToken.mint(deployer, initialSupply);
-  await PotatoToken.mint("0xE270dE780dB6B711Cf089e57AF731Ef761ba1Ea2", initialSupply);
+  await PotatoToken.mint("0xFe0f545E56c2751ab5beDdC0E99A18ecd9D4ed7E", initialSupply);
   console.log("Minting complete");
   // const minterRole = ethers.id("MINTER_ROLE");
   // console.log(`MINTER_ROLE hash: ${minterRole}`);

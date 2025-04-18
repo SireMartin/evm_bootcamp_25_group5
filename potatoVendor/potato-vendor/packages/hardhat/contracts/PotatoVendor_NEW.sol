@@ -3,11 +3,9 @@ pragma solidity ^0.8.20;
 
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {HashUtilsWrapper} from "./HashUtilsWrapper.sol";                                    // Import the wrapper library
+import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";                                    // Import the wrapper library
 
-contract PotatoVendor is AccessControl {
-
-    using HashUtilsWrapper for bytes32;                                                     // Enable the `toEthSignedMessageHash` function
+contract PotatoVendorNew is AccessControl {                                                   // Enable the `toEthSignedMessageHash` function
 
     event LockerAssigned(address indexed buyer, uint256 lockerNumber);
 
@@ -58,7 +56,7 @@ contract PotatoVendor is AccessControl {
 
         // Hash the message (locker number) and recover the signer
         bytes32 messageHash = keccak256(abi.encodePacked(lockerNumber));
-        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();                // Use the wrapper library
+        bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         address signer = ecrecover(ethSignedMessageHash, v, r, s);
         
         require(signer == buyer, "Invalid signature");

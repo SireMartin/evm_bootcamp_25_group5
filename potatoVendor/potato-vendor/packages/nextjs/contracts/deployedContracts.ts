@@ -876,7 +876,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     PotatoVendor: {
-      address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
       abi: [
         {
           inputs: [
@@ -887,7 +887,7 @@ const deployedContracts = {
             },
             {
               internalType: "address",
-              name: "potatoTokenAddress",
+              name: "tokenAddress",
               type: "address",
             },
           ],
@@ -914,6 +914,44 @@ const deployedContracts = {
           ],
           name: "AccessControlUnauthorizedAccount",
           type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "buyer",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "lockerNumber",
+              type: "uint256",
+            },
+          ],
+          name: "LockerAssigned",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "buyer",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "lockerNumber",
+              type: "uint256",
+            },
+          ],
+          name: "LockerOpened",
+          type: "event",
         },
         {
           anonymous: false,
@@ -1023,6 +1061,19 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [],
+          name: "_potatoToken",
+          outputs: [
+            {
+              internalType: "contract IERC20",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
@@ -1104,24 +1155,28 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "string",
-              name: "signedMsg",
-              type: "string",
+              internalType: "uint8",
+              name: "lockerNumber",
+              type: "uint8",
             },
             {
-              internalType: "uint256",
-              name: "lockerNumber",
-              type: "uint256",
+              internalType: "uint8",
+              name: "v",
+              type: "uint8",
+            },
+            {
+              internalType: "bytes32",
+              name: "r",
+              type: "bytes32",
+            },
+            {
+              internalType: "bytes32",
+              name: "s",
+              type: "bytes32",
             },
           ],
           name: "openLocker",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "",
-              type: "bool",
-            },
-          ],
+          outputs: [],
           stateMutability: "nonpayable",
           type: "function",
         },
