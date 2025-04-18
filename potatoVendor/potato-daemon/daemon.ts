@@ -65,12 +65,16 @@ async function main() {
             const receipt = await txReserveLocker.wait();
             console.log('Transaction confirmed');
 
-            // Get the raw return value
+            //get the return value of the reserveLocker function
             const result = await provider.call({
                 to: POTATO_VENDOR_ADDRESS,
                 data: txReserveLocker.data
             });
             console.log('Reserved locker:', ethers.toNumber(result));
+
+            // Get the last locker number from the contract
+            const lastLockerNumber = await vendorContract._lastLockerNumber();
+            console.log('Last locker number from contract:', ethers.toNumber((lastLockerNumber)));
         } catch (error) {
             console.error('Error sending transaction:', error);
         }

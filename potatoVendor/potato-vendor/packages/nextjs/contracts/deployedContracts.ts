@@ -1042,6 +1042,19 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [],
+          name: "_lastLockerNumber",
+          outputs: [
+            {
+              internalType: "uint8",
+              name: "",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint8",

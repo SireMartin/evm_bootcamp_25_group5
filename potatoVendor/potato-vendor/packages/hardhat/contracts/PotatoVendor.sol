@@ -9,6 +9,7 @@ import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/Messa
 contract PotatoVendor is AccessControl {
     IERC20 public immutable _potatoToken;
     mapping(uint8 => address) public _lockerToBuyer;
+    uint8 public _lastLockerNumber;
 
     event LockerAssigned(address indexed buyer, uint256 lockerNumber);
     event LockerOpened(address indexed buyer, uint256 lockerNumber);
@@ -36,6 +37,7 @@ contract PotatoVendor is AccessControl {
                 if(_lockerToBuyer[lockerNumber] == address(0)) {
                     _lockerToBuyer[lockerNumber] = buyer;
                     emit LockerAssigned(buyer, lockerNumber);
+                    _lastLockerNumber = lockerNumber;
                     return lockerNumber;
                 }
                 ++lockerNumber;
