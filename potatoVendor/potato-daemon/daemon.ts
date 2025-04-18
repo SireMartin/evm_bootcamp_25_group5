@@ -40,7 +40,7 @@ async function main() {
 
     // Listen to all events
     tokenContract.on('*', async (event) => {
-        console.log('Event received:', {
+        console.log('Token event received:', {
             name: event.eventName,
             args: event.args,
             blockNumber: event.blockNumber,
@@ -77,6 +77,25 @@ async function main() {
             console.log('Last locker number from contract:', ethers.toNumber((lastLockerNumber)));
         } catch (error) {
             console.error('Error sending transaction:', error);
+        }
+    });
+
+    vendorContract.on('*', (event) => {
+        console.log('Vendor event received:', {
+            name: event.eventName,
+            args: event.args,
+            blockNumber: event.blockNumber,
+            transactionHash: event.log.transactionHash
+        });
+
+        if(event.eventName !== 'LockerAssigned') {
+            //todo: send confirmation to the buyer
+            return;
+        }
+
+        if(event.eventName !== 'LockerOpened') {
+            //todo: send confirmation to the buyer
+            return;
         }
     });
 
