@@ -6,6 +6,8 @@ import { parseEther } from "viem";
 import { Address, AddressInput, EtherInput } from "~~/components/scaffold-eth";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth/useScaffoldReadContract";
 import { ethers } from "ethers";
+import deployedContracts from "~~/contracts/deployedContracts";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 
 // ERC20 Permit type data
 const PERMIT_TYPES = {
@@ -22,7 +24,7 @@ type TransactionStatus = "idle" | "pending" | "success" | "error";
 
 export default function PermitPage() {
   const { address } = useAccount();
-  const [spender, setSpender] = useState<string>("");
+  const { targetNetwork } = useTargetNetwork();
   const [amount, setAmount] = useState<string>("0");
   const [deadline, setDeadline] = useState<number>(0);
   const [nonce, setNonce] = useState<bigint>(0n);
@@ -63,10 +65,6 @@ export default function PermitPage() {
         console.error("[ERROR] No connected wallet address");
         return;
       }
-      if (!spender) {
-        console.error("[ERROR] No spender address provided");
-        return;
-      }
       if (isNonceLoading) {
         console.error("[ERROR] Nonce is still loading");
         return;
@@ -75,6 +73,22 @@ export default function PermitPage() {
         console.error("[ERROR] Current nonce is undefined");
         return;
       }
+
+      // Get the contract address from environment variable
+      const tokenContract = deployedContracts[targetNetwork.id as keyof typeof deployedContracts].Potato.address as `0x${string}`;
+      if (!ethers.isAddress(tokenContract)) {
+        console.error("[ERROR] Invalid token contract address:", tokenContract);
+        return;
+      }
+      console.log("[DEBUG] Using POTATO_TOKEN_ADDRESS as spender:", tokenContract);
+
+      // Get the contract address from environment variable
+      const spender = deployedContracts[targetNetwork.id as keyof typeof deployedContracts].PotatoVendor.address as `0x${string}`;
+      if (!ethers.isAddress(spender)) {
+        console.error("[ERROR] Invalid vendor contract address:", spender);
+        return;
+      }
+      console.log("[DEBUG] Using POTATO_VENDOR_ADDRESS as spender:", spender);
 
       console.log("[DEBUG] Addresses and nonce:", {
         owner: address,
@@ -88,10 +102,6 @@ export default function PermitPage() {
         console.error("[ERROR] Invalid owner address:", address);
         return;
       }
-      if (!ethers.isAddress(spender)) {
-        console.error("[ERROR] Invalid spender address:", spender);
-        return;
-      }
 
       // Get current timestamp and add 1 hour
       const currentTime = Math.floor(Date.now() / 1000);
@@ -103,20 +113,12 @@ export default function PermitPage() {
         currentNonce: currentNonce.toString() 
       });
 
-      // Get the contract address from deployedContracts
-      const contractAddress = process.env.NEXT_PUBLIC_POTATO_TOKEN_ADDRESS;
-      if (!ethers.isAddress(contractAddress)) {
-        console.error("[ERROR] Invalid token contract address:", spender);
-        return;
-      }
-      console.log("[DEBUG] Using POTATO_TOKEN_ADDRESS :", contractAddress);
-
       // Prepare permit data
       const domain = {
         name: "Potato",
         version: "1",
-        chainId: 31337, // Hardhat network ID
-        verifyingContract: contractAddress,
+        chainId: targetNetwork.id,
+        verifyingContract: tokenContract,
       };
       console.log("[DEBUG] Domain data:", domain);
 
@@ -208,17 +210,6 @@ export default function PermitPage() {
         </h1>
         
         <div className="mt-8 max-w-md mx-auto">
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Spender Address</span>
-            </label>
-            <AddressInput
-              value={spender}
-              onChange={setSpender}
-              placeholder="Enter spender address"
-            />
-          </div>
-
           <div className="form-control mt-4">
             <label className="label">
               <span className="label-text">Amount</span>
@@ -235,6 +226,9 @@ export default function PermitPage() {
               Your Address: <Address address={address} />
             </p>
             <p className="text-lg">
+              Spender Address: <Address address={deployedContracts[targetNetwork.id as keyof typeof deployedContracts].PotatoVendor.address as `0x${string}`} />
+            </p>
+            <p className="text-lg">
               Current Nonce: {currentNonce?.toString()}
             </p>
             <p className="text-lg">
@@ -245,7 +239,7 @@ export default function PermitPage() {
           <button
             className="btn btn-primary w-full mt-6"
             onClick={handlePermit}
-            disabled={!address || !spender || !amount || isLoading}
+            disabled={!address || !amount || isLoading}
           >
             {isLoading ? "Processing..." : "Execute Permit"}
           </button>

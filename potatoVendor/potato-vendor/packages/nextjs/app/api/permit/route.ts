@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ethers } from "ethers";
 import { hardhat } from "viem/chains";
+import deployedContracts from "~~/contracts/deployedContracts";
 
 // Initialize provider and signer
 const provider = new ethers.JsonRpcProvider("http://localhost:8545");
@@ -90,7 +91,7 @@ export async function POST(request: Request) {
     }
 
     // Get the contract address from environment variable
-    const contractAddress = process.env.NEXT_PUBLIC_POTATO_TOKEN_ADDRESS;
+    const contractAddress = deployedContracts[31337].Potato.address as `0x${string}`;
     console.log("[DEBUG] Contract address:", contractAddress);
     if (!contractAddress) {
       console.error("[ERROR] POTATO_TOKEN_ADDRESS not found in environment variables");
