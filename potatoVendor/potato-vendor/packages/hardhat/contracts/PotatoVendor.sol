@@ -7,25 +7,25 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 contract PotatoVendor is AccessControl {
-    IERC20 public immutable potatoToken;
-    mapping(uint8 => address) public lockerToBuyer;
-    uint8 public lastLockerNumber;
+    IERC20 public immutable _potatoToken;
+    mapping(uint8 => address) public _lockerToBuyer;
+    uint8 public _lastLockerNumber;
 
     event LockerAssigned(address indexed buyer, uint256 lockerNumber);
     event LockerOpened(address indexed buyer, uint256 lockerNumber);
 
-    constructor(address _deployer, address _tokenAddress)
+    constructor(address deployer, address tokenAddress)
     {
-        _grantRole(DEFAULT_ADMIN_ROLE, _deployer);
+        _grantRole(DEFAULT_ADMIN_ROLE, deployer);
         _potatoToken = IERC20(_tokenAddress);
     }
 
-    function getApprovedAmount(address _buyer, uint256 _amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function getApprovedAmount(address buyer, uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(potatoToken.allowance(buyer, address(this)) >= amount, "Insufficient allowance");
         require(potatoToken.balanceOf(buyer) >= amount, "Insufficient balance");
         
         // Transfer tokens from buyer to this contract
-        bool success = _potatoToken.transferFrom(buyer, address(this), amount);
+        bool success = potatoToken.transferFrom(buyer, address(this), amount);
         require(success, "Token transfer failed");
     }
 
