@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { NextPage } from "next";
 import { useAccount, useSignMessage } from "wagmi";
-import { recoverMessageAddress, type SignableMessage } from "viem";
+import { recoverMessageAddress, type SignableMessage, keccak256, encodePacked, toHex, toBytes } from "viem";
 import { HomeIcon } from "@heroicons/react/24/outline";
 import { Address } from "~~/components/scaffold-eth";
 
@@ -33,8 +33,46 @@ const OpenLockerPage: NextPage = () => {
     }
   };
 
-  const handleSignMessage = () => {
-    signMessage({ message: `${lockerNumber}` });
+  const handleSignMessage = async () => {
+    // Create the exact same message as the contract
+    const messageBytes = encodePacked(["uint8"], [lockerNumber]);
+    const messageHash = keccak256(messageBytes);
+    signMessage({ message: { raw: messageHash } });
+    
+    if (signMessageData) {
+      // Convert signature to v,r,s format
+      const signature = signMessageData as `0x${string}`;
+      const r = signature.slice(0, 66);
+      const s = `0x${signature.slice(66, 130)}`;
+      const v = parseInt(signature.slice(130, 132), 16);
+
+      try {
+        const response = await fetch('/api/locker', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            lockerNumber: variables?.message,
+            signature: {
+              v,
+              r,
+              s
+            }
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to open locker');
+        }
+
+        const data = await response.json();
+        console.log('Locker opened successfully:', data);
+        
+      } catch (error) {
+        console.error('Error opening locker:', error);
+      }
+    }
   };
 
   return (
