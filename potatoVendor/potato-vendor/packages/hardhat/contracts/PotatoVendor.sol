@@ -11,6 +11,8 @@ contract PotatoVendor is AccessControl {
     mapping(uint8 => address) public _lockerToBuyer;
     uint8 public _lastLockerNumber;
 
+    error NoAvailableLockers();
+
     event LockerAssigned(address indexed buyer, uint256 lockerNumber);
     event LockerOpened(address indexed buyer, uint256 lockerNumber);
 
@@ -42,7 +44,7 @@ contract PotatoVendor is AccessControl {
                 }
                 ++lockerNumber;
             }
-            revert("No available lockers");
+            revert NoAvailableLockers();
         }
     }
 
