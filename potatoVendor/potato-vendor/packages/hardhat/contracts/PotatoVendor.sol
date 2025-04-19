@@ -32,17 +32,15 @@ contract PotatoVendor is AccessControl {
     function reserveLocker(address buyer) public onlyRole(DEFAULT_ADMIN_ROLE) returns (uint8) {
         //map the buyer address to an available locker number
         unchecked {
-            uint8 lockerNumber = uint8(uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao))) % 256);
-            for(uint8 i = 0; i < 256; ++i) {
-                if(_lockerToBuyer[lockerNumber] == address(0)) {
-                    _lockerToBuyer[lockerNumber] = buyer;
-                    emit LockerAssigned(buyer, lockerNumber);
-                    _lastLockerNumber = lockerNumber;
-                    return lockerNumber;
-                }
-                ++lockerNumber;
-            }
-            revert("No available lockers");
+           for (uint8 lockerNumber = 0; lockerNumber < 256; ++lockerNumber) {
+        if (_lockerToBuyer[lockerNumber] == address(0)) {
+            _lockerToBuyer[lockerNumber] = buyer;
+            emit LockerAssigned(buyer, lockerNumber);
+            _lastLockerNumber = lockerNumber;
+            return lockerNumber;
+        }
+    }
+    revert("No available lockers");
         }
     }
 
