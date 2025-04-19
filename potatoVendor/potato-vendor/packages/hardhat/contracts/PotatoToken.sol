@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
 contract Potato is ERC20, AccessControl, ERC20Permit {
@@ -33,7 +34,10 @@ contract Potato is ERC20, AccessControl, ERC20Permit {
         bytes32 r,
         bytes32 s,
         string memory email
-    ) public onlyRole(MINTER_ROLE) {
+    ) public onlyRole(MINTER_ROLE) nonReentrant{
+        require(bytes(email).length > 0, "Email cannot be empty");
+        require(value > 0, "Value must be greater than zero");
+        require(block.timestamp <= deadline, "Permit deadline has passed");
         permit(owner, spender, value, deadline, v, r, s);
         // Emit event for buying potato so the stand-alone back-end can confirm the order to the buyer, transfer the tokens and determine a locker number
         emit BuyPotato(owner, value, email);
