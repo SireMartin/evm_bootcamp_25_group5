@@ -103,6 +103,76 @@ describe("PotatoVendor", function () {
       expect(await potatoVendor._lastLockerNumber()).to.equal(lockerNumber);
     });
   });
+
+  describe("openLocker", function () {
+    it("should open locker with valid signature", async function () {
+      // Reserve a locker first
+      const tx = await potatoVendor.reserveLocker(buyer.address);
+      const receipt = await tx.wait();
+      if (!receipt) throw new Error("Transaction receipt is null");
+      const event = receipt.logs[0] as EventLog;
+      const lockerNumber = Number(event.args[1]);
+
+      // Create the message hash exactly as the contract does
+      const messageHash = ethers.keccak256(ethers.solidityPacked(["uint8"], [lockerNumber]));
+      const signature = await buyer.signMessage(ethers.getBytes(messageHash));
+      const sig = ethers.Signature.from(signature);
+
+      // Open the locker
+      await expect(potatoVendor.openLocker(lockerNumber, sig.v, sig.r, sig.s))
+        .to.emit(potatoVendor, "LockerOpened")
+        .withArgs(buyer.address, lockerNumber);
+
+      // Verify locker is cleared
+      expect(await potatoVendor._lockerToBuyer(lockerNumber)).to.equal(ethers.ZeroAddress);
+    });
+
+    it("should revert when opening unassigned locker", async function () {
+      const lockerNumber = 1;
+      const messageHash = ethers.keccak256(ethers.solidityPacked(["uint8"], [lockerNumber]));
+      const signature = await buyer.signMessage(ethers.getBytes(messageHash));
+      const sig = ethers.Signature.from(signature);
+
+      await expect(potatoVendor.openLocker(lockerNumber, sig.v, sig.r, sig.s))
+        .to.be.revertedWith("Locker not assigned");
+    });
+
+    it("should revert when signature is invalid", async function () {
+      // Reserve a locker
+      const tx = await potatoVendor.reserveLocker(buyer.address);
+      const receipt = await tx.wait();
+      if (!receipt) throw new Error("Transaction receipt is null");
+      const event = receipt.logs[0] as EventLog;
+      const lockerNumber = Number(event.args[1]);
+
+      // Sign a different locker number
+      const wrongLockerNumber = lockerNumber + 1;
+      const messageHash = ethers.keccak256(ethers.solidityPacked(["uint8"], [wrongLockerNumber]));
+      const signature = await buyer.signMessage(ethers.getBytes(messageHash));
+      const sig = ethers.Signature.from(signature);
+
+      await expect(potatoVendor.openLocker(lockerNumber, sig.v, sig.r, sig.s))
+        .to.be.revertedWith("Invalid signature");
+    });
+
+    it("should revert when signer is not the buyer", async function () {
+      // Reserve a locker
+      const tx = await potatoVendor.reserveLocker(buyer.address);
+      const receipt = await tx.wait();
+      if (!receipt) throw new Error("Transaction receipt is null");
+      const event = receipt.logs[0] as EventLog;
+      const lockerNumber = Number(event.args[1]);
+
+      // Sign with a different account
+      const [otherSigner] = await ethers.getSigners();
+      const messageHash = ethers.keccak256(ethers.solidityPacked(["uint8"], [lockerNumber]));
+      const signature = await otherSigner.signMessage(ethers.getBytes(messageHash));
+      const sig = ethers.Signature.from(signature);
+
+      await expect(potatoVendor.openLocker(lockerNumber, sig.v, sig.r, sig.s))
+        .to.be.revertedWith("Invalid signature");
+    });
+  });
 });
 
 // Helper function to match any value in event assertions
