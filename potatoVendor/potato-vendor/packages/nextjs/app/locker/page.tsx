@@ -1,24 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { NextPage } from "next";
 import { useAccount, useSignMessage } from "wagmi";
-import type { SignableMessage } from "viem";
+import { recoverMessageAddress, type SignableMessage } from "viem";
 import { HomeIcon } from "@heroicons/react/24/outline";
 import { Address } from "~~/components/scaffold-eth";
 
 const OpenLockerPage: NextPage = () => {
   const { address: connectedAddress } = useAccount();
   const [lockerNumber, setLockerNumber] = useState<number>(0);
-  const { signMessage } = useSignMessage({
-    mutation: {
-      onSuccess: (data: `0x${string}`, variables: { message: SignableMessage }) => {
-        console.log("Signature:", data);
-        // TODO: Send signature to backend
-      },
-    },
-  });
+  const [recoveredAddress, setRecoveredAddress] = useState<string>("");
+  const { data: signMessageData, signMessage, variables } = useSignMessage();
+
+  useEffect(() => {
+    ;(async () => {
+      if (variables?.message && signMessageData) {
+        const addr = await recoverMessageAddress({
+          message: variables?.message,
+          signature: signMessageData,
+        });
+        setRecoveredAddress(addr);
+      }
+    })();
+  }, [signMessageData, variables?.message]);
 
   const handleLockerNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
@@ -28,7 +34,7 @@ const OpenLockerPage: NextPage = () => {
   };
 
   const handleSignMessage = () => {
-    signMessage({ message: `Open locker ${lockerNumber}` });
+    signMessage({ message: `${lockerNumber}` });
   };
 
   return (
@@ -69,6 +75,7 @@ const OpenLockerPage: NextPage = () => {
               >
                 Sign and Open Locker
               </button>
+              <div>recovered address = {recoveredAddress}</div>
             </div>
             
             <Link 
