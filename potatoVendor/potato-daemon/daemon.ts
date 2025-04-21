@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import dotenv from 'dotenv';
-
+import nodemailer from 'nodemailer';
 // Load environment variables
 dotenv.config();
 
@@ -11,6 +11,15 @@ const POTATO_TOKEN_ADDRESS = process.env.POTATO_TOKEN_ADDRESS;
 const POTATO_TOKEN_ABI = process.env.POTATO_TOKEN_ABI ? JSON.parse(process.env.POTATO_TOKEN_ABI) : [];
 const POTATO_VENDOR_ADDRESS = process.env.POTATO_VENDOR_ADDRESS;
 const POTATO_VENDOR_ABI = process.env.POTATO_VENDOR_ABI ? JSON.parse(process.env.POTATO_VENDOR_ABI) : [];
+
+// Email setup
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
 
 async function main() {
     if (!POTATO_TOKEN_ADDRESS || !POTATO_TOKEN_ABI) {
@@ -80,7 +89,7 @@ async function main() {
         }
     });
 
-    vendorContract.on('*', (event) => {
+    vendorContract.on('*', async (event) => {
         console.log('Vendor event received:', {
             name: event.eventName,
             args: event.args,
@@ -89,8 +98,13 @@ async function main() {
         });
 
         if(event.eventName !== 'LockerAssigned') {
-            //todo: send confirmation to the buyer
-            return;
+            await transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: event.args.buyer,
+                subject: 'Potato Order Confirmation',
+                text: `Hello, your locker has been reserved. \nThe potatos are awaiting you at the locker ${event.args.lockerNumber}.`,
+            });
+            console.log('Email sent successfully!');
         }
 
         if(event.eventName !== 'LockerOpened') {

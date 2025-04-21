@@ -13,8 +13,8 @@ contract PotatoVendor is AccessControl {
 
     error NoAvailableLockers();
 
-    event LockerAssigned(address indexed buyer, uint256 lockerNumber);
-    event LockerOpened(address indexed buyer, uint256 lockerNumber);
+    event LockerAssigned(address indexed buyer, uint8 lockerNumber);
+    event LockerOpened(address indexed buyer, uint8 lockerNumber);
 
     constructor(address deployer, address tokenAddress)
     {
