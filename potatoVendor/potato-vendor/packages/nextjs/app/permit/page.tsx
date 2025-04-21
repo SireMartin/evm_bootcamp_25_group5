@@ -40,6 +40,12 @@ export default function PermitPage() {
     args: [address],
   });
 
+  const { data: qtyPotatoToken } = useScaffoldReadContract({
+    contractName: "Potato",
+    functionName: "balanceOf",
+    args: [address],
+  });
+
   const checkTransactionStatus = async (hash: string) => {
     try {
       const response = await fetch(`/api/permit/status?hash=${hash}`);
@@ -233,6 +239,9 @@ export default function PermitPage() {
             </p>
             <p className="text-lg">
               Deadline: {new Date(deadline * 1000).toLocaleString()}
+            </p>
+            <p>
+              Your Potato Token balance: <strong>{ethers.formatEther(qtyPotatoToken?.toString() ?? "0")} Potato</strong>
             </p>
           </div>
 

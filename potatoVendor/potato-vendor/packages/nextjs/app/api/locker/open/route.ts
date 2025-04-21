@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { ethers } from 'ethers';
 import deployedContracts from "~~/contracts/deployedContracts";
-
+import scaffoldConfig from "~~/scaffold.config";
 const deployerPrivateKey = process.env.DEPLOYER_PRIVATE_KEY;
 if (!deployerPrivateKey) {
   throw new Error("DEPLOYER_PRIVATE_KEY not set in environment variables");
@@ -17,8 +17,8 @@ export async function POST(request: Request) {
     const wallet = new ethers.Wallet(deployerPrivateKey as `0x${string}`, provider);
 
     // Load contract ABI and address
-    const contractAddress = deployedContracts[31337].PotatoVendor.address;
-    const abi = deployedContracts[31337].PotatoVendor.abi;
+    const contractAddress = deployedContracts[scaffoldConfig.targetNetworks[0].id].PotatoVendor.address;
+    const abi = deployedContracts[scaffoldConfig.targetNetworks[0].id].PotatoVendor.abi;
 
     // Create contract instance
     const contract = new ethers.Contract(contractAddress, abi, wallet);

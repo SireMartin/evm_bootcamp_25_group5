@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { ethers } from "ethers";
 import { hardhat } from "viem/chains";
 import deployedContracts from "~~/contracts/deployedContracts";
-
+import scaffoldConfig from "~~/scaffold.config";
 // Initialize provider and signer
 const provider = new ethers.JsonRpcProvider("http://localhost:8545");
 const deployerPrivateKey = process.env.DEPLOYER_PRIVATE_KEY;
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
     }
 
     // Get the contract address from environment variable
-    const contractAddress = deployedContracts[31337].Potato.address as `0x${string}`;
+    const contractAddress = deployedContracts[scaffoldConfig.targetNetworks[0].id].Potato.address as `0x${string}`;
     console.log("[DEBUG] Contract address:", contractAddress);
     if (!contractAddress) {
       console.error("[ERROR] POTATO_TOKEN_ADDRESS not found in environment variables");
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
     const tx = await contract.permit(
       owner,
       spender,
-      value, // Convert to wei
+      value,
       BigInt(deadline),
       parseInt(v),
       r,
