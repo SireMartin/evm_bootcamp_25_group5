@@ -33,9 +33,27 @@ export async function POST(request: Request) {
       );
     }
 
+    // Create the message hash exactly as the contract does
+    const contractMessageHash = ethers.keccak256(ethers.solidityPacked(["uint8"], [lockerNumber]));
+    const contractEthMessageHash = ethers.hashMessage(ethers.getBytes(contractMessageHash));
+    console.log("Contract message hash:", contractMessageHash);
+    console.log("Contract Ethereum signed message hash:", contractEthMessageHash);
+    console.log("Received message hash:", messageHash);
+
+    // Verify the message hashes match
+    if (contractEthMessageHash.toLowerCase() !== messageHash.toLowerCase()) {
+      console.error("Message hash mismatch");
+      console.error("Expected:", contractEthMessageHash);
+      console.error("Received:", messageHash);
+      return NextResponse.json(
+        { error: 'Invalid message hash' },
+        { status: 400 }
+      );
+    }
+
     // Verify the signature matches the contract's format
     const recoveredAddress = ethers.recoverAddress(
-      messageHash,
+      contractEthMessageHash,
       { r, s, v }
     );
     console.log("Recovered address:", recoveredAddress);

@@ -37,8 +37,10 @@ const OpenLockerPage: NextPage = () => {
       console.log("Sender address:", connectedAddress);
       
       // Create message hash exactly as the contract does
-      const messageHash = keccak256(encodePacked(["uint8"], [args[0]]));
-      console.log("Message hash:", messageHash);
+      const rawLockerHash = ethers.keccak256(ethers.solidityPacked(["uint8"], [args[0]]));
+      console.log("Raw locker hash:", rawLockerHash);
+      const prefixedLockerHash = ethers.hashMessage(ethers.getBytes(rawLockerHash));
+      console.log("Prefixed locker hash:", prefixedLockerHash);
 
       // Call the daemon's API to open the locker
       const response = await fetch('/api/locker/open', {
@@ -52,7 +54,7 @@ const OpenLockerPage: NextPage = () => {
           r: args[2],
           s: args[3],
           signer: connectedAddress,
-          messageHash: messageHash,
+          messageHash: prefixedLockerHash,
         }),
       });
 
@@ -159,12 +161,12 @@ const OpenLockerPage: NextPage = () => {
       return;
     }
 
-    // Create message hash exactly as the contract does
-    const messageHash = keccak256(encodePacked(["uint8"], [assignedLockerNumber]));
-    console.log("Message hash:", messageHash);
+    // Create the raw message hash exactly as the contract does
+    const rawLockerHash = ethers.keccak256(ethers.solidityPacked(["uint8"], [assignedLockerNumber]));
+    console.log("Raw locker hash (to be signed):", rawLockerHash);
     
-    // Sign the raw message hash (without Ethereum prefix)
-    signMessage({ message: messageHash });
+    // Sign the raw hash bytes - wagmi/viem will add the EIP-191 prefix
+    signMessage({ message: { raw: ethers.getBytes(rawLockerHash) } });
   };
 
   return (
