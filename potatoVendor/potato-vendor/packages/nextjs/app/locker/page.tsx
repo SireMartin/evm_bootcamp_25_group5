@@ -53,7 +53,7 @@ const OpenLockerPage: NextPage = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            lockerNumber: variables?.message,
+            lockerNumber,
             signature: {
               v,
               r,
