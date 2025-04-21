@@ -8,6 +8,7 @@ import { useScaffoldReadContract } from "~~/hooks/scaffold-eth/useScaffoldReadCo
 import { ethers } from "ethers";
 import deployedContracts from "~~/contracts/deployedContracts";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";
+import scaffoldConfig from "~~/scaffold.config";
 
 // ERC20 Permit type data
 const PERMIT_TYPES = {
@@ -26,6 +27,7 @@ export default function PermitPage() {
   const { address } = useAccount();
   const { targetNetwork } = useTargetNetwork();
   const [amount, setAmount] = useState<string>("0");
+  const [email, setEmail] = useState<string>("");
   const [deadline, setDeadline] = useState<number>(0);
   const [nonce, setNonce] = useState<bigint>(0n);
   const [isLoading, setIsLoading] = useState(false);
@@ -81,7 +83,7 @@ export default function PermitPage() {
       }
 
       // Get the contract address from environment variable
-      const tokenContract = deployedContracts[targetNetwork.id as keyof typeof deployedContracts].Potato.address as `0x${string}`;
+      const tokenContract = deployedContracts[scaffoldConfig.targetNetworks[0].id].Potato.address as `0x${string}`;
       if (!ethers.isAddress(tokenContract)) {
         console.error("[ERROR] Invalid token contract address:", tokenContract);
         return;
@@ -89,7 +91,7 @@ export default function PermitPage() {
       console.log("[DEBUG] Using POTATO_TOKEN_ADDRESS as spender:", tokenContract);
 
       // Get the contract address from environment variable
-      const spender = deployedContracts[targetNetwork.id as keyof typeof deployedContracts].PotatoVendor.address as `0x${string}`;
+      const spender = deployedContracts[scaffoldConfig.targetNetworks[0].id].PotatoVendor.address as `0x${string}`;
       if (!ethers.isAddress(spender)) {
         console.error("[ERROR] Invalid vendor contract address:", spender);
         return;
@@ -173,7 +175,7 @@ export default function PermitPage() {
           v,
           r,
           s,
-          email: "potato@potato.com"
+          email
         }),
       });
 
@@ -225,6 +227,17 @@ export default function PermitPage() {
               onChange={setAmount}
               placeholder="Enter amount"
             />
+            <label className="label mt-4">
+              <span className="label-text">Email</span>
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              className="input input-bordered w-full"
+              required
+            />
           </div>
 
           <div className="mt-6">
@@ -232,7 +245,7 @@ export default function PermitPage() {
               Your Address: <Address address={address} />
             </p>
             <p className="text-lg">
-              Spender Address: <Address address={deployedContracts[targetNetwork.id as keyof typeof deployedContracts].PotatoVendor.address as `0x${string}`} />
+              Spender Address: <Address address={deployedContracts[scaffoldConfig.targetNetworks[0].id].PotatoVendor.address as `0x${string}`} />
             </p>
             <p className="text-lg">
               Current Nonce: {currentNonce?.toString()}

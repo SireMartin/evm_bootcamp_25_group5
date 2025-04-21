@@ -245,31 +245,6 @@ const deployedContracts = {
         },
         {
           anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "buyer",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "amount",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "email",
-              type: "string",
-            },
-          ],
-          name: "BuyPotato",
-          type: "event",
-        },
-        {
-          anonymous: false,
           inputs: [],
           name: "EIP712DomainChanged",
           type: "event",
@@ -684,54 +659,6 @@ const deployedContracts = {
               name: "s",
               type: "bytes32",
             },
-            {
-              internalType: "string",
-              name: "email",
-              type: "string",
-            },
-          ],
-          name: "permit",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-            {
-              internalType: "address",
-              name: "spender",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "value",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "deadline",
-              type: "uint256",
-            },
-            {
-              internalType: "uint8",
-              name: "v",
-              type: "uint8",
-            },
-            {
-              internalType: "bytes32",
-              name: "r",
-              type: "bytes32",
-            },
-            {
-              internalType: "bytes32",
-              name: "s",
-              type: "bytes32",
-            },
           ],
           name: "permit",
           outputs: [],
@@ -932,8 +859,33 @@ const deployedContracts = {
             {
               indexed: false,
               internalType: "uint256",
-              name: "lockerNumber",
+              name: "amount",
               type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "email",
+              type: "string",
+            },
+          ],
+          name: "BuyPotato",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "buyer",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint8",
+              name: "lockerNumber",
+              type: "uint8",
             },
           ],
           name: "LockerAssigned",
@@ -950,9 +902,9 @@ const deployedContracts = {
             },
             {
               indexed: false,
-              internalType: "uint256",
+              internalType: "uint8",
               name: "lockerNumber",
-              type: "uint256",
+              type: "uint8",
             },
           ],
           name: "LockerOpened",
@@ -1092,6 +1044,19 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [],
+          name: "_potatoTokenPermit",
+          outputs: [
+            {
+              internalType: "contract IERC20Permit",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
@@ -1194,6 +1159,54 @@ const deployedContracts = {
             },
           ],
           name: "openLocker",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "spender",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "value",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "deadline",
+              type: "uint256",
+            },
+            {
+              internalType: "uint8",
+              name: "v",
+              type: "uint8",
+            },
+            {
+              internalType: "bytes32",
+              name: "r",
+              type: "bytes32",
+            },
+            {
+              internalType: "bytes32",
+              name: "s",
+              type: "bytes32",
+            },
+            {
+              internalType: "string",
+              name: "email",
+              type: "string",
+            },
+          ],
+          name: "permit",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",

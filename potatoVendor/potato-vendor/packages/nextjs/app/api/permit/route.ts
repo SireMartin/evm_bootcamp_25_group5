@@ -11,58 +11,6 @@ if (!deployerPrivateKey) {
 }
 const deployerWallet = new ethers.Wallet(deployerPrivateKey, provider);
 
-// Contract ABI for permit function
-const permitABI = [
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "deadline",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "v",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "r",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "s",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "string",
-        "name": "email",
-        "type": "string"
-      }
-    ],
-    "name": "permit",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-];
-
 export async function POST(request: Request) {
   try {
     console.log("[DEBUG] Starting permit execution...");
@@ -91,9 +39,9 @@ export async function POST(request: Request) {
     }
 
     // Get the contract address from environment variable
-    const contractAddress = deployedContracts[scaffoldConfig.targetNetworks[0].id].Potato.address as `0x${string}`;
-    console.log("[DEBUG] Contract address:", contractAddress);
-    if (!contractAddress) {
+    const vendorContractAddress = deployedContracts[scaffoldConfig.targetNetworks[0].id].PotatoVendor.address as `0x${string}`;
+    console.log("[DEBUG] Contract address:", vendorContractAddress);
+    if (!vendorContractAddress) {
       console.error("[ERROR] POTATO_TOKEN_ADDRESS not found in environment variables");
       return NextResponse.json(
         { error: "Contract address not configured" },
@@ -103,7 +51,9 @@ export async function POST(request: Request) {
 
     // Get contract instance with signer
     console.log("[DEBUG] Getting contract instance with signer...");
-    const contract = new ethers.Contract(contractAddress, permitABI, deployerWallet);
+    const contract = new ethers.Contract(vendorContractAddress, 
+      deployedContracts[scaffoldConfig.targetNetworks[0].id].PotatoVendor.abi, 
+      deployerWallet);
     console.log("[DEBUG] Contract instance created with signer:", deployerWallet.address);
 
     // Execute permit

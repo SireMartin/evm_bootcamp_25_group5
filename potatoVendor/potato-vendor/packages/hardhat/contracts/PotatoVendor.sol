@@ -4,15 +4,18 @@ pragma solidity ^0.8.20;
 
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 contract PotatoVendor is AccessControl {
     IERC20 public immutable _potatoToken;
+    IERC20Permit public immutable _potatoTokenPermit;
     mapping(uint8 => address) public _lockerToBuyer;
     uint8 public _lastLockerNumber;
 
     error NoAvailableLockers();
 
+    event BuyPotato(address indexed buyer, uint256 amount, string email);
     event LockerAssigned(address indexed buyer, uint8 lockerNumber);
     event LockerOpened(address indexed buyer, uint8 lockerNumber);
 
@@ -20,6 +23,22 @@ contract PotatoVendor is AccessControl {
     {
         _grantRole(DEFAULT_ADMIN_ROLE, deployer);
         _potatoToken = IERC20(tokenAddress);
+        _potatoTokenPermit = IERC20Permit(tokenAddress);
+    }
+
+     function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        string memory email
+    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        IERC20Permit(_potatoTokenPermit).permit(owner, spender, value, deadline, v, r, s);
+        // Emit event for buying potato so the stand-alone back-end can confirm the order to the buyer, transfer the tokens and determine a locker number
+        emit BuyPotato(owner, value, email);
     }
 
     function getApprovedAmount(address buyer, uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
