@@ -6,8 +6,6 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
-import "hardhat/console.sol";
-
 contract PotatoVendor is AccessControl {
     IERC20 public immutable _potatoToken;
     mapping(uint8 => address) public _lockerToBuyer;
@@ -36,7 +34,7 @@ contract PotatoVendor is AccessControl {
     function reserveLocker(address buyer) public onlyRole(DEFAULT_ADMIN_ROLE) returns (uint8) {
         //map the buyer address to an available locker number
         unchecked {
-            uint8 lockerNumber = uint8(uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao))) % 256);
+            uint8 lockerNumber = uint8(block.prevrandao % 256);
             for(uint8 i = 0; i < 256; ++i) {
                 if(_lockerToBuyer[lockerNumber] == address(0)) {
                     _lockerToBuyer[lockerNumber] = buyer;
@@ -63,8 +61,6 @@ contract PotatoVendor is AccessControl {
         bytes32 messageHash = keccak256(abi.encodePacked(lockerNumber));
         bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         address signer = ecrecover(ethSignedMessageHash, v, r, s);
-        console.log("signer", signer);
-        console.log("buyer", buyer);
         
         require(signer == buyer, "Invalid signature");
         _lockerToBuyer[lockerNumber] = address(0);
