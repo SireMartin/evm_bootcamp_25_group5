@@ -916,6 +916,11 @@ const deployedContracts = {
           type: "error",
         },
         {
+          inputs: [],
+          name: "NoAvailableLockers",
+          type: "error",
+        },
+        {
           anonymous: false,
           inputs: [
             {
