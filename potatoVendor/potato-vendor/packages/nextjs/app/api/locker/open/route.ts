@@ -1,5 +1,11 @@
 import { NextResponse } from 'next/server';
 import { ethers } from 'ethers';
+import deployedContracts from "~~/contracts/deployedContracts";
+
+const deployerPrivateKey = process.env.DEPLOYER_PRIVATE_KEY;
+if (!deployerPrivateKey) {
+  throw new Error("DEPLOYER_PRIVATE_KEY not set in environment variables");
+}
 
 export async function POST(request: Request) {
   try {
@@ -8,14 +14,11 @@ export async function POST(request: Request) {
 
     // Create provider and wallet with daemon's private key
     const provider = new ethers.JsonRpcProvider('http://localhost:8545');
-    const wallet = new ethers.Wallet('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80', provider);
+    const wallet = new ethers.Wallet(deployerPrivateKey as `0x${string}`, provider);
 
     // Load contract ABI and address
-    const contractAddress = '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9';
-    const abi = [
-      'function openLocker(uint8 lockerNumber, uint8 v, bytes32 r, bytes32 s)',
-      'function _lockerToBuyer(uint8) view returns (address)',
-    ];
+    const contractAddress = deployedContracts[31337].PotatoVendor.address;
+    const abi = deployedContracts[31337].PotatoVendor.abi;
 
     // Create contract instance
     const contract = new ethers.Contract(contractAddress, abi, wallet);
