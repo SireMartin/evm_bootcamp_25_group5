@@ -82,6 +82,21 @@ export default function PermitPage() {
         return;
       }
 
+      // Validate email and amount before proceeding
+      if (!email || email.trim() === '') {
+        setErrorMessage("Please enter an email address");
+        setTransactionStatus("error");
+        setIsLoading(false);
+        return;
+      }
+
+      if (!amount || Number(amount) <= 0) {
+        setErrorMessage("Please enter a valid amount greater than 0");
+        setTransactionStatus("error"); 
+        setIsLoading(false);
+        return;
+      }
+
       // Get the contract address from environment variable
       const tokenContract = deployedContracts[scaffoldConfig.targetNetworks[0].id].Potato.address as `0x${string}`;
       if (!ethers.isAddress(tokenContract)) {

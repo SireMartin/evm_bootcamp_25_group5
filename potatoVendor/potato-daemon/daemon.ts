@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
+import PotatoVendorArtifact from '../potato-vendor/packages/hardhat/artifacts/contracts/PotatoVendor.sol/PotatoVendor.json'
 // Load environment variables
 dotenv.config();
 
@@ -8,7 +9,6 @@ dotenv.config();
 const RPC_URL = process.env.RPC_URL || 'http://localhost:8545';
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const POTATO_VENDOR_ADDRESS = process.env.POTATO_VENDOR_ADDRESS;
-const POTATO_VENDOR_ABI = process.env.POTATO_VENDOR_ABI ? JSON.parse(process.env.POTATO_VENDOR_ABI) : [];
 
 // Email setup
 const transporter = nodemailer.createTransport({
@@ -20,12 +20,12 @@ const transporter = nodemailer.createTransport({
 });
 
 // Map to store buyer addresses and their corresponding emails
-const buyerEmails: { [address: string]: string } = {};
+const buyerEmails: { [address: string]: {email: string, amount: bigint} } = {};
 
 
 async function main() {
-    if (!POTATO_VENDOR_ADDRESS || !POTATO_VENDOR_ABI) {
-        console.error('Please set POTATO_VENDOR_ADDRESS and POTATO_VENDOR_ABI in your .env file');
+    if (!POTATO_VENDOR_ADDRESS) {
+        console.error('Please set POTATO_VENDOR_ADDRESS in your .env file');
         process.exit(1);
     }
     if (!PRIVATE_KEY) {
@@ -38,7 +38,7 @@ async function main() {
     const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
 
     // Create contract instance with signer
-    const vendorContract = new ethers.Contract(POTATO_VENDOR_ADDRESS, POTATO_VENDOR_ABI, wallet);
+    const vendorContract = new ethers.Contract(POTATO_VENDOR_ADDRESS, PotatoVendorArtifact.abi, wallet);
 
     console.log('Starting daemon...');
     console.log(`Listening to events from contract: ${POTATO_VENDOR_ADDRESS}`);
@@ -69,7 +69,7 @@ async function main() {
                 console.log('Transaction confirmed');
 
                 // Store the buyer's email in the map
-                buyerEmails[event.args.buyer] = event.args.email;
+                buyerEmails[event.args.buyer] = {email: event.args.email, amount: event.args.amount};
 
                 //get the return value of the reserveLocker function
                 const result = await provider.call({
@@ -92,11 +92,11 @@ async function main() {
             }
             await transporter.sendMail({
                 from: process.env.EMAIL_USER,
-                to: buyerEmails[event.args.buyer],
+                to: buyerEmails[event.args.buyer].email,
                 subject: 'Potato Locker Reservation',
-                text: `Hello, your locker has been reserved. \nThe potatos are awaiting you at the locker ${event.args.lockerNumber}.`,
+                text: `Hello, your locker has been reserved. \nThe ${ethers.formatEther(buyerEmails[event.args.buyer].amount)} potatoes are awaiting you at the locker ${event.args.lockerNumber}.`,
             });
-            console.log(`Email LockerReservation sent successfully to ${buyerEmails[event.args.buyer]}`);
+            console.log(`Email LockerReservation sent successfully to ${buyerEmails[event.args.buyer].email}`);
         }
         else if (event.eventName === 'LockerOpened') {
             if (!buyerEmails[event.args.buyer]) {
@@ -105,11 +105,11 @@ async function main() {
             }
             await transporter.sendMail({
                 from: process.env.EMAIL_USER,
-                to: buyerEmails[event.args.buyer],
+                to: buyerEmails[event.args.buyer].email,
                 subject: 'Potato Pickup',
-                text: `Hello, your potatoes at locker ${event.args.lockerNumber} have been picked up.`,
+                text: `Hello, your ${ethers.formatEther(buyerEmails[event.args.buyer].amount)} potatoes at locker ${event.args.lockerNumber} have been picked up.`,
             });
-            console.log(`Email PotatoPickup sent successfully to ${buyerEmails[event.args.buyer]}`);
+            console.log(`Email PotatoPickup sent successfully to ${buyerEmails[event.args.buyer].email}`);
         }
     });
 
