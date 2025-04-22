@@ -1,7 +1,12 @@
 # The Potato Shop
+A custom ERC20 Token called **POTATO**
 
-Decentralized DApp that facilitates the issuance, management and secure vending of a custom ERC20 token called POTATO.  
-This is accomplished by registering the address of the buyer to a locker number, and letting the buyer open the locker by signing a message and using ECDSA.
+# OVERVIEW
+ [Potato-daemon](https://github.com/SireMartin/evm_bootcamp_25_group5/tree/main/potatoVendor/potato-daemon)
+ [Potato-Vendor](https://github.com/SireMartin/evm_bootcamp_25_group5/tree/main/potatoVendor/potato-vendor)
+## What is Potato Shop
+The Potatos Shop is a Decentralized Application (DApp) that facilitates the issuance, management and secure vending of a custom ERC20 token called **POTATO**.  
+This is accomplished by registering the address of the buyer to a locker number, and letting the buyer open the locker by signing a message using ECDSA.
 
 ## Description
 
@@ -11,11 +16,11 @@ This is accomplished by registering the address of the buyer to a locker number,
 - The PotatoToken contract uses role-based access control:
   - Admin Role: Can assign or revoke the ability to mint tokens
   - Minter Role: Can mint new tokens to specified accounts
-- The contract also supports EIP-2612 (ERC20Permit), allowing users to approve token spending off-chain with a signature, reducing gas costs
+- The contract also supports EIP-2612 (ERC20Permit), it allows users to approve token, spending off-chain with a signature, thus, reducing gas costs
 
 **<span style="font-size: 16px;">Token Vending and Locker System (PotatoVendor contract)</span>**
 
-- The PotatoVendor contract acts as a vending machine for the Potato token, managing token purchases and locker-based delivery:
+- The PotatoVendor contract acts as a vending machine for the Potato token, manages purchased tokens and locker-based delivery:
   - *Purchase Process*
     - Buyers can use the permit functionality to approve the vendor contract to spend their tokens via a signature
     - The vendor processes the purchase, emits an event and assigns a locker for the buyer to collect their tokens
@@ -27,3 +32,9 @@ This is accomplished by registering the address of the buyer to a locker number,
     - The contract validates the signature to ensure only the rightful owner can access the locker
 
 ## Prerequisites
+The following steps should be completed before using the Potato Shop DApp
+## Requirements
+
+## Deployment
+
+## Example
