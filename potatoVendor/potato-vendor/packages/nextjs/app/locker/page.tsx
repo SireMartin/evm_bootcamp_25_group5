@@ -39,8 +39,8 @@ const OpenLockerPage: NextPage = () => {
       // Create message hash exactly as the contract does
       const rawLockerHash = ethers.keccak256(ethers.solidityPacked(["uint8"], [args[0]]));
       console.log("Raw locker hash:", rawLockerHash);
-      const prefixedLockerHash = ethers.hashMessage(ethers.getBytes(rawLockerHash));
-      console.log("Prefixed locker hash:", prefixedLockerHash);
+      // const prefixedLockerHash = ethers.hashMessage(ethers.getBytes(rawLockerHash));
+      // console.log("Prefixed locker hash:", prefixedLockerHash);
 
       // Call the daemon's API to open the locker
       const response = await fetch('/api/locker/open', {
@@ -109,7 +109,7 @@ const OpenLockerPage: NextPage = () => {
 
   useEffect(() => {
     checkLockerAssignment();
-  }, [connectedAddress]);
+  }, [potatoVendorContract, connectedAddress]);
 
   const { signMessage } = useSignMessage({
     mutation: {

@@ -92,15 +92,15 @@ export async function POST(request: Request) {
     console.log("[viem][DEBUG] Locker Open - Received prefixed message hash:", messageHash);
 
     // Verify the received message hash matches the calculated prefixed hash
-    if (contractEthMessageHash.toLowerCase() !== (messageHash as string).toLowerCase()) {
-      console.error("[viem][ERROR] Locker Open - Message hash mismatch");
-      console.error("[viem][ERROR] Locker Open - Expected:", contractEthMessageHash);
-      console.error("[viem][ERROR] Locker Open - Received:", messageHash);
-      return NextResponse.json(
-        { error: 'Invalid message hash' },
-        { status: 400 }
-      );
-    }
+    // if (contractEthMessageHash.toLowerCase() !== (messageHash as string).toLowerCase()) {
+    //   console.error("[viem][ERROR] Locker Open - Message hash mismatch");
+    //   console.error("[viem][ERROR] Locker Open - Expected:", contractEthMessageHash);
+    //   console.error("[viem][ERROR] Locker Open - Received:", messageHash);
+    //   return NextResponse.json(
+    //     { error: 'Invalid message hash' },
+    //     { status: 400 }
+    //   );
+    // }
 
     // Verify the signature using viem
     console.log("[viem][DEBUG] Locker Open - Recovering address from signature...");
