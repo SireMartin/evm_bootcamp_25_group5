@@ -11,7 +11,6 @@ contract PotatoVendor is AccessControl {
     IERC20 public immutable _potatoToken;
     IERC20Permit public immutable _potatoTokenPermit;
     mapping(uint8 => address) public _lockerToBuyer;
-    uint8 public _lastLockerNumber;
 
     error NoAvailableLockers();
 
@@ -50,7 +49,7 @@ contract PotatoVendor is AccessControl {
         require(success, "Token transfer failed");
     }
 
-    function reserveLocker(address buyer) public onlyRole(DEFAULT_ADMIN_ROLE) returns (uint8) {
+    function reserveLocker(address buyer) public onlyRole(DEFAULT_ADMIN_ROLE) {
         //map the buyer address to an available locker number
         unchecked {
             uint8 lockerNumber = uint8(block.prevrandao % 256);
@@ -58,8 +57,7 @@ contract PotatoVendor is AccessControl {
                 if(_lockerToBuyer[lockerNumber] == address(0)) {
                     _lockerToBuyer[lockerNumber] = buyer;
                     emit LockerAssigned(buyer, lockerNumber);
-                    _lastLockerNumber = lockerNumber;
-                    return lockerNumber;
+                    return;
                 }
                 ++lockerNumber;
             }

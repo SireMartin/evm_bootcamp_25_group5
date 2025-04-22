@@ -109,7 +109,7 @@ const OpenLockerPage: NextPage = () => {
 
   useEffect(() => {
     checkLockerAssignment();
-  }, [potatoVendorContract, connectedAddress]);
+  }, [connectedAddress]);
 
   const { signMessage } = useSignMessage({
     mutation: {

@@ -126,15 +126,6 @@ describe("PotatoVendor", function () {
         .to.emit(potatoVendor, "LockerAssigned")
         .withArgs(buyer.address, anyValue);
     });
-
-    it("should update _lastLockerNumber when reserving a locker", async function () {
-      const tx = await potatoVendor.reserveLocker(buyer.address);
-      const receipt = await tx.wait();
-      if (!receipt) throw new Error("Transaction receipt is null");
-      const event = receipt.logs[0] as EventLog;
-      const lockerNumber = Number(event.args[1]);
-      expect(await potatoVendor._lastLockerNumber()).to.equal(lockerNumber);
-    });
   });
 
   describe("openLocker", function () {
