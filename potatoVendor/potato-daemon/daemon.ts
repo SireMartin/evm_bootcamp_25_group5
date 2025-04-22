@@ -22,7 +22,6 @@ const transporter = nodemailer.createTransport({
 // Map to store buyer addresses and their corresponding emails
 const buyerEmails: { [address: string]: {email: string, amount: bigint} } = {};
 
-
 async function main() {
     if (!POTATO_VENDOR_ADDRESS) {
         console.error('Please set POTATO_VENDOR_ADDRESS in your .env file');
@@ -41,76 +40,74 @@ async function main() {
     const vendorContract = new ethers.Contract(POTATO_VENDOR_ADDRESS, PotatoVendorArtifact.abi, wallet);
 
     console.log('Starting daemon...');
-    console.log(`Listening to events from contract: ${POTATO_VENDOR_ADDRESS}`);
+    console.log(`Listening to events from potatoVendor contract: ${POTATO_VENDOR_ADDRESS}`);
     console.log(`Using wallet address: ${wallet.address}`);
 
     // Listen to all events
-    vendorContract.on('*', async (event) => {
-        console.log('Token event received:', {
-            name: event.eventName,
-            args: event.args,
-            blockNumber: event.blockNumber,
-            transactionHash: event.log.transactionHash
+    vendorContract.on('BuyPotato', async (buyer, amount, email, event) => {
+        console.log('BuyPotato event received:', {
+            buyer, amount, email
         });
+        try {
+            //call the potatoVendor contract to acquire the buyer tokens to it
+            console.log('Acquiring buyer tokens...');
+            const txApproveAmount = await vendorContract.getApprovedAmount(buyer, amount);
+            console.log('Transaction sent:', txApproveAmount.hash);
+            await txApproveAmount.wait();
+            console.log('Transaction confirmed');
 
-        if (event.eventName === 'BuyPotato') {
-            try {
-                //call the potatoVendor contract to acquire the buyer tokens to it
-                console.log('Acquiring buyer tokens...');
-                const txApproveAmount = await vendorContract.getApprovedAmount(event.args.buyer, event.args.amount);
-                console.log('Transaction sent:', txApproveAmount.hash);
-                await txApproveAmount.wait();
-                console.log('Transaction confirmed');
+            //call the potatoVendor contract to reserve a locker
+            console.log('Reserving locker...');
+            const txReserveLocker = await vendorContract.reserveLocker(buyer);
+            const receipt = await txReserveLocker.wait();
+            console.log('Transaction confirmed');
 
-                //call the potatoVendor contract to reserve a locker
-                console.log('Reserving locker...');
-                const txReserveLocker = await vendorContract.reserveLocker(event.args.buyer);
-                const receipt = await txReserveLocker.wait();
-                console.log('Transaction confirmed');
+            // Store the buyer's email in the map
+            buyerEmails[buyer] = {email, amount };
 
-                // Store the buyer's email in the map
-                buyerEmails[event.args.buyer] = {email: event.args.email, amount: event.args.amount};
-
-                //get the return value of the reserveLocker function
-                const result = await provider.call({
-                    to: POTATO_VENDOR_ADDRESS,
-                    data: txReserveLocker.data
-                });
-                console.log('Reserved locker:', ethers.toNumber(result));
-
-                // Get the last locker number from the contract
-                const lastLockerNumber = await vendorContract._lastLockerNumber();
-                console.log('Last locker number from contract:', ethers.toNumber((lastLockerNumber)));
-            } catch (error) {
-                console.error('Error sending transaction:', error);
-            }
-        }
-        else if (event.eventName === 'LockerAssigned') {
-            if (!buyerEmails[event.args.buyer]) {
-                console.error('No email found for buyer:', event.args.buyer);
-                return;
-            }
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: buyerEmails[event.args.buyer].email,
-                subject: 'Potato Locker Reservation',
-                text: `Hello, your locker has been reserved. \nThe ${ethers.formatEther(buyerEmails[event.args.buyer].amount)} potatoes are awaiting you at the locker ${event.args.lockerNumber}.`,
+            //get the return value of the reserveLocker function
+            const result = await provider.call({
+                to: POTATO_VENDOR_ADDRESS,
+                data: txReserveLocker.data
             });
-            console.log(`Email LockerReservation sent successfully to ${buyerEmails[event.args.buyer].email}`);
+            console.log('Reserved locker:', ethers.toNumber(result));
+
+            // Get the last locker number from the contract
+            const lastLockerNumber = await vendorContract._lastLockerNumber();
+            console.log('Last locker number from contract:', ethers.toNumber((lastLockerNumber)));
+        } catch (error) {
+            console.error('Error sending transaction:', error);
         }
-        else if (event.eventName === 'LockerOpened') {
-            if (!buyerEmails[event.args.buyer]) {
-                console.error('No email found for buyer:', event.args.buyer);
-                return;
-            }
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: buyerEmails[event.args.buyer].email,
-                subject: 'Potato Pickup',
-                text: `Hello, your ${ethers.formatEther(buyerEmails[event.args.buyer].amount)} potatoes at locker ${event.args.lockerNumber} have been picked up.`,
-            });
-            console.log(`Email PotatoPickup sent successfully to ${buyerEmails[event.args.buyer].email}`);
+    });
+
+    vendorContract.on('LockerAssigned', async (buyer, lockerNumber, event) => {
+        console.log('LockerAssigned event received:', { buyer, lockerNumber });
+        if (!buyerEmails[buyer]) {
+            console.error('No email found for buyer:', buyer);
+            return;
         }
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: buyerEmails[buyer].email,
+            subject: 'Potato Locker Reservation',
+            text: `Hello, your locker has been reserved. \nThe ${ethers.formatEther(buyerEmails[buyer].amount)} potatoes are awaiting you at the locker ${lockerNumber}.`,
+        });
+        console.log(`Email LockerReservation sent successfully to ${buyerEmails[buyer].email}`);
+    });
+
+    vendorContract.on('LockerOpened', async (buyer, lockerNumber, event) => {
+        console.log('LockerOpened event received:', { buyer, lockerNumber });
+        if (!buyerEmails[buyer]) {
+            console.error('No email found for buyer:', buyer);
+            return;
+        }
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: buyerEmails[buyer].email,
+            subject: 'Potato Pickup',
+            text: `Hello, your ${ethers.formatEther(buyerEmails[buyer].amount)} potatoes at locker ${lockerNumber} have been picked up.`,
+        });
+        console.log(`Email PotatoPickup sent successfully to ${buyerEmails[buyer].email}`);
     });
 
     // Keep the process running
