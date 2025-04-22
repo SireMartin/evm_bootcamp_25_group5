@@ -3,9 +3,10 @@ import { ethers } from "ethers";
 import { hardhat } from "viem/chains";
 import deployedContracts from "~~/contracts/deployedContracts";
 import scaffoldConfig from "~~/scaffold.config";
+
 // Initialize provider and signer
-const provider = new ethers.JsonRpcProvider("http://localhost:8545");
-const deployerPrivateKey = process.env.DEPLOYER_PRIVATE_KEY;
+const provider = new ethers.JsonRpcProvider("https://eth-sepolia.g.alchemy.com/v2/u_Q3rtDWGAFifMjA3jtrs8j3vcO53RJ9", "sepolia");
+const deployerPrivateKey = "0c62c34e4bcc83f57d5fc426b3c770099f1045ce85d6a401e54d3fc9b650bb76";
 if (!deployerPrivateKey) {
   throw new Error("DEPLOYER_PRIVATE_KEY not set in environment variables");
 }

@@ -49,6 +49,8 @@ async function main() {
             buyer, amount, email
         });
         try {
+            // Store the buyer's email in the map
+            buyerEmails[buyer] = {email, amount };
             //call the potatoVendor contract to acquire the buyer tokens to it
             console.log('Acquiring buyer tokens...');
             const txApproveAmount = await vendorContract.getApprovedAmount(buyer, amount);
@@ -61,20 +63,6 @@ async function main() {
             const txReserveLocker = await vendorContract.reserveLocker(buyer);
             const receipt = await txReserveLocker.wait();
             console.log('Transaction confirmed');
-
-            // Store the buyer's email in the map
-            buyerEmails[buyer] = {email, amount };
-
-            //get the return value of the reserveLocker function
-            const result = await provider.call({
-                to: POTATO_VENDOR_ADDRESS,
-                data: txReserveLocker.data
-            });
-            console.log('Reserved locker:', ethers.toNumber(result));
-
-            // Get the last locker number from the contract
-            const lastLockerNumber = await vendorContract._lastLockerNumber();
-            console.log('Last locker number from contract:', ethers.toNumber((lastLockerNumber)));
         } catch (error) {
             console.error('Error sending transaction:', error);
         }
