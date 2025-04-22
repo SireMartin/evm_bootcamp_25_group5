@@ -27,6 +27,39 @@ describe("PotatoVendor", function () {
     await token.mint(buyer.address, ethers.parseEther("1000"));
   });
 
+  describe("getApprovedAmount", function () {
+    it("should transfer the tokens if allowance and balance are sufficient", async function () {
+      const amount = ethers.parseEther("100");
+      // Approve the contract to spend buyer's tokens
+      await token.connect(buyer).approve(await potatoVendor.getAddress(), amount);
+      // Call getApprovedAmount
+      await expect(potatoVendor.getApprovedAmount(buyer.address, amount))
+        .to.not.be.reverted;
+      // Verify the contract's balance increased
+      const contractBalance = await token.balanceOf(await potatoVendor.getAddress());
+      expect(contractBalance).to.equal(amount);
+    });
+
+    it("should revert if allowance is insufficient", async function () {
+      const amount = ethers.parseEther("100");
+      const insufficientAllowance = ethers.parseEther("50");
+      // Approve less than the required amount
+      await token.connect(buyer).approve(await potatoVendor.getAddress(), insufficientAllowance);
+      // Call getApprovedAmount and expect a revert
+      await expect(potatoVendor.getApprovedAmount(buyer.address, amount))
+        .to.be.revertedWith("Insufficient allowance");
+    });
+
+    it("should revert if balance is insufficient", async function () {
+      const amount = ethers.parseEther("2000");                                     // more than buyer's balance
+      // Approve the contract to spend buyer's tokens
+      await token.connect(buyer).approve(await potatoVendor.getAddress(), amount);
+      // Call getApprovedAmount and expect a revert
+      await expect(potatoVendor.getApprovedAmount(buyer.address, amount))
+        .to.be.revertedWith("Insufficient balance");
+    });
+  });
+
   describe("reserveLocker", function () {
     it("should assign locker to buyer when lockers are available", async function () {
       const tx = await potatoVendor.reserveLocker(buyer.address);
