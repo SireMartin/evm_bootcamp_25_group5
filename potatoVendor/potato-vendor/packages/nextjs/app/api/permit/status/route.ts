@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { hardhat } from "viem/chains";
 
 // Initialize provider
-const provider = new ethers.JsonRpcProvider("https://eth-sepolia.g.alchemy.com/v2/u_Q3rtDWGAFifMjA3jtrs8j3vcO53RJ9", "sepolia");
+const provider = new ethers.JsonRpcProvider("http://localhost:8545");
 
 export async function GET(request: Request) {
   try {
