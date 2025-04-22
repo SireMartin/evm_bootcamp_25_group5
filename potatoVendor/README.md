@@ -16,13 +16,13 @@ This is accomplished by registering the address of the buyer to a locker number,
 **<span style="font-size: 16px;">Token Vending and Locker System (PotatoVendor contract)</span>**
 
 - The PotatoVendor contract acts as a vending machine for the Potato token, managing token purchases and locker-based delivery:
-  - Purchase Process:
+  - *Purchase Process*
     - Buyers can use the permit functionality to approve the vendor contract to spend their tokens via a signature
     - The vendor processes the purchase, emits an event and assigns a locker for the buyer to collect their tokens
-  - Locker Assignment:
+  - *Locker Assignment*
     - Lockers are assigned dynamically via a pseudo-random mechanism based on the previous block's randomness
     - Each locker is mapped to a buyer's address
-  - Locker Security:
+  - *Locker Security*
     - Buyers can open their assigned lockers by signing a message and submitting the signature to the contract
     - The contract validates the signature to ensure only the rightful owner can access the locker
 
