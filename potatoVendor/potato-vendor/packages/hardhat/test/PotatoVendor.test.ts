@@ -205,6 +205,33 @@ describe("PotatoVendor", function () {
       await expect(potatoVendor.openLocker(lockerNumber, sig.v, sig.r, sig.s))
         .to.be.revertedWith("Invalid signature");
     });
+
+    it("should benchmark gas usage for openLocker", async function () {
+      const NUM_RUNS = 10;
+      let totalGasUsed = 0n;
+      for (let i = 0; i < NUM_RUNS; i++) {
+        // Reserve a locker
+        const tx = await potatoVendor.reserveLocker(buyer.address);
+        const receipt = await tx.wait();
+        if (!receipt) {
+          throw new Error("Transaction receipt is null or undefined");
+        }
+        const event = receipt.logs[0] as EventLog;
+        const lockerNumber = Number(event.args[1]);
+        // Create signature
+        const messageHash = ethers.keccak256(ethers.solidityPacked(["uint8"], [lockerNumber]));
+        const signature = await buyer.signMessage(ethers.getBytes(messageHash));
+        const sig = ethers.Signature.from(signature);
+        // Measure gas usage for openLocker
+        const openTx = await potatoVendor.openLocker(lockerNumber, sig.v, sig.r, sig.s);
+        const openReceipt = await openTx.wait();
+        if (!openReceipt) {
+          throw new Error("Transaction receipt for openLocker is null or undefined");
+        }
+        totalGasUsed += BigInt(openReceipt.gasUsed);
+      }
+      console.log(`Average gas used for openLocker: ${totalGasUsed / BigInt(NUM_RUNS)} gas`);
+    });
   });
 });
 
