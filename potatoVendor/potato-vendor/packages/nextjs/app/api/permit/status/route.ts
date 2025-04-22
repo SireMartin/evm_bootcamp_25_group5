@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
-import { ethers } from "ethers";
-import { hardhat } from "viem/chains";
+import { createPublicClient, http } from "viem";
+import scaffoldConfig from "~~/scaffold.config";
 
-// Initialize provider
-const provider = new ethers.JsonRpcProvider("https://eth-sepolia.g.alchemy.com/v2/u_Q3rtDWGAFifMjA3jtrs8j3vcO53RJ9", "sepolia");
+// Initialize Viem Public Client
+const targetNetwork = scaffoldConfig.targetNetworks[0];
+const publicClient = createPublicClient({
+  chain: targetNetwork,
+  transport: http(`https://eth-sepolia.g.alchemy.com/v2/${scaffoldConfig.alchemyApiKey}`),
+});
 
 export async function GET(request: Request) {
   try {
@@ -17,22 +21,32 @@ export async function GET(request: Request) {
       );
     }
 
-    // Get transaction receipt
-    const receipt = await provider.getTransactionReceipt(hash);
+    // Get transaction receipt using viem
+    console.log(`[viem][DEBUG] Checking status for hash: ${hash}`);
+    const receipt = await publicClient.getTransactionReceipt({ hash: hash as `0x${string}` });
+    console.log(`[viem][DEBUG] Receipt found:`, receipt);
 
     if (!receipt) {
+      console.log(`[viem][DEBUG] Status: pending (no receipt)`);
       return NextResponse.json({ status: "pending" });
     }
 
-    if (receipt.status === 1) {
+    // Viem receipt status is a string: 'success' or 'reverted'
+    if (receipt.status === "success") {
+      console.log(`[viem][DEBUG] Status: success`);
       return NextResponse.json({ status: "success" });
     } else {
+      console.log(`[viem][DEBUG] Status: error (reverted)`);
       return NextResponse.json({ status: "error" });
     }
-  } catch (error) {
-    console.error("Error checking transaction status:", error);
+  } catch (error: any) {
+    console.error("[viem][ERROR] Error checking transaction status:", error);
+    // Log more specific viem error details if available
+    if (error.shortMessage) {
+      console.error("[viem][ERROR] Details:", error.shortMessage);
+    }
     return NextResponse.json(
-      { error: "Failed to check transaction status" },
+      { error: error.shortMessage || "Failed to check transaction status" },
       { status: 500 }
     );
   }

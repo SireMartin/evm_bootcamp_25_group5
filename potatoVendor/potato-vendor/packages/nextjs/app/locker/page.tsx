@@ -54,7 +54,7 @@ const OpenLockerPage: NextPage = () => {
           r: args[2],
           s: args[3],
           signer: connectedAddress,
-          messageHash: prefixedLockerHash,
+          messageHash: rawLockerHash,
         }),
       });
 
