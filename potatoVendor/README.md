@@ -31,6 +31,39 @@ This is accomplished by registering the address of the buyer to a locker number,
   - *Locker Security*
     - Buyers can open their assigned lockers by signing a message and submitting the signature to the contract
     - The contract validates the signature to ensure only the rightful owner can access the locker
+   
+## Working Mechanism
+
+1. **<span style="font-size: 16px;">Setup</span>**
+
+  - The `PotatoToken` contract is deployed, and roles are assigned:
+    - The admin assigns the `Minter Role` to the vendor contract or other authorized accounts
+    - This allows tokens to be minted for distribution
+  - The `PotatoVendor` contract is deployed with the address of the `PotatoToken` contract
+
+2. **<span style="font-size: 16px;">Token Minting</span>**
+
+  - The vendor contract (or other authorized minters) mints new `POTATO` tokens as needed:
+    - For example, minting tokens to distribute to buyers or to keep tokens in the vendor contract for vending
+
+3. **<span style="font-size: 16px;">Token Purchase</span>**
+
+  - Buyers interact with the `PotatoVendor` contract to purchase tokens:
+    - The buyer approves the vendor contract to spend tokens using the `permit` functionality (off-chain signature)
+    - The vendor processes the purchase and emits an event to notify the backend system or external services
+
+4. **<span style="font-size: 16px;">Locker Assignment</span>**
+
+  - After a successful purchase, the vendor assigns a locker to the buyer:
+    - The locker number is dynamically determined using a pseudo-random mechanism
+    - The locker is mapped to the buyer's address, and an event is emitted
+
+5. **<span style="font-size: 16px;">Locker Access</span>**
+
+  - Buyers can open their assigned lockers by submitting a valid cryptographic signature:
+    - The buyer signs the locker number off-chain
+    - The vendor contract verifies the signature and ensures it matches the buyer's address
+    - If valid, the locker is opened, and the mapping is cleared for future use.
 
 ## Prerequisites
 The following steps should be completed before using the Potato Shop DApp
