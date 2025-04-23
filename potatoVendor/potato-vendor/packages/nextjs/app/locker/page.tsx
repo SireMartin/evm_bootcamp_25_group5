@@ -18,9 +18,7 @@ const OpenLockerPage: NextPage = () => {
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [hasLockerAssigned, setHasLockerAssigned] = useState<boolean>(false);
-  const [isChecking, setIsChecking] = useState<boolean>(true);
-  const [assignedLockerNumber, setAssignedLockerNumber] = useState<number | null>(null);
+  const [lockerNumberInput, setLockerNumberInput] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   const { data: potatoVendorContract } = useScaffoldContract({
@@ -84,33 +82,6 @@ const OpenLockerPage: NextPage = () => {
     }
   };
 
-  const checkLockerAssignment = async () => {
-    if (!potatoVendorContract || !connectedAddress) return;
-    try {
-      setError(null);
-      // Check all lockers to find the one assigned to the user
-      for (let i = 0; i < 256; i++) {
-        const buyer = await potatoVendorContract.read._lockerToBuyer([i]);
-        if (buyer.toLowerCase() === connectedAddress.toLowerCase()) {
-          setHasLockerAssigned(true);
-          setAssignedLockerNumber(i);
-          console.log("Found assigned locker:", i);
-          break;
-        }
-      }
-    } catch (error) {
-      console.error("Failed to check locker assignment:", error);
-      setHasLockerAssigned(false);
-      setError("Failed to check locker assignment. Please try again.");
-    } finally {
-      setIsChecking(false);
-    }
-  };
-
-  useEffect(() => {
-    checkLockerAssignment();
-  }, [potatoVendorContract, connectedAddress]);
-
   const { signMessage } = useSignMessage({
     mutation: {
       onSuccess: async (data: `0x${string}`, variables: { message: SignableMessage }) => {
@@ -127,17 +98,15 @@ const OpenLockerPage: NextPage = () => {
           
           console.log("Signature components:", { v, r, s });
 
-          if (assignedLockerNumber === null) {
-            throw new Error("No locker assigned");
+          const lockerNumber = parseInt(lockerNumberInput, 10);
+          if (isNaN(lockerNumber) || lockerNumber < 0 || lockerNumber > 255) {
+            throw new Error("Invalid locker number. Must be between 0 and 255.");
           }
 
           // Call the contract
           notification.info("Opening locker...");
-          const receipt = await openLocker([assignedLockerNumber, v, r, s]);
+          const receipt = await openLocker([lockerNumber, v, r, s]);
           notification.success("Locker opened successfully!");
-          
-          // Refresh locker assignment status
-          await checkLockerAssignment();
         } catch (error) {
           console.error("Failed to open locker:", error);
           const errorMessage = error instanceof Error ? error.message : "Failed to open locker";
@@ -156,13 +125,14 @@ const OpenLockerPage: NextPage = () => {
   });
 
   const handleSignMessage = () => {
-    if (assignedLockerNumber === null) {
-      notification.error("No locker assigned");
+    const lockerNumber = parseInt(lockerNumberInput, 10);
+    if (isNaN(lockerNumber) || lockerNumber < 0 || lockerNumber > 255) {
+      notification.error("Please enter a valid locker number (0-255).");
       return;
     }
 
     // Create the raw message hash exactly as the contract does
-    const rawLockerHash = ethers.keccak256(ethers.solidityPacked(["uint8"], [assignedLockerNumber]));
+    const rawLockerHash = ethers.keccak256(ethers.solidityPacked(["uint8"], [lockerNumber]));
     console.log("Raw locker hash (to be signed):", rawLockerHash);
     
     // Sign the raw hash bytes - wagmi/viem will add the EIP-191 prefix
@@ -174,8 +144,7 @@ const OpenLockerPage: NextPage = () => {
       <div className="flex items-center flex-col flex-grow pt-10">
         <div className="px-5">
           <h1 className="text-center">
-            <span className="block text-2xl mb-2">Open Locker</span>
-            <span className="block text-4xl font-bold">Your Assigned Locker</span>
+            <span className="block text-4xl font-bold">Open Locker</span>
           </h1>
           {connectedAddress && (
             <div className="flex justify-center items-center space-x-2 flex-col">
@@ -187,37 +156,35 @@ const OpenLockerPage: NextPage = () => {
 
         <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
           <div className="flex justify-center items-center gap-12 flex-col">
-            {isChecking ? (
-              <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-                <div className="loading loading-spinner loading-lg"></div>
-                <p className="mt-4">Checking locker assignments...</p>
+            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
+              <div className="form-control w-full max-w-xs mb-4">
+                <label className="label">
+                  <span className="label-text">Locker Number</span>
+                </label>
+                <input
+                  type="number"
+                  placeholder="Enter locker number (0-255)"
+                  className="input input-bordered w-full max-w-xs"
+                  value={lockerNumberInput}
+                  onChange={(e) => setLockerNumberInput(e.target.value)}
+                  min="0"
+                  max="255"
+                />
               </div>
-            ) : !hasLockerAssigned ? (
-              <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-                <p className="text-error">No locker assigned to your address.</p>
-                <p className="mt-2">Please purchase potatoes first to get a locker assigned.</p>
-              </div>
-            ) : (
-              <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-                <div className="mb-4">
-                  <p className="text-lg font-bold">Your Assigned Locker:</p>
-                  <p className="text-3xl font-bold text-primary">{assignedLockerNumber}</p>
+              {error && (
+                <div className="alert alert-error mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <span>{error}</span>
                 </div>
-                {error && (
-                  <div className="alert alert-error mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span>{error}</span>
-                  </div>
-                )}
-                <button
-                  className={`btn btn-primary mt-4 ${isLoading ? "loading" : ""}`}
-                  onClick={handleSignMessage}
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Opening..." : "Sign and Open Locker"}
-                </button>
-              </div>
-            )}
+              )}
+              <button
+                className={`btn btn-primary mt-4 ${isLoading ? "loading" : ""}`}
+                onClick={handleSignMessage}
+                disabled={isLoading || !lockerNumberInput}
+              >
+                {isLoading ? "Opening..." : "Sign and Open Locker"}
+              </button>
+            </div>
             
             <Link 
               href="/" 
