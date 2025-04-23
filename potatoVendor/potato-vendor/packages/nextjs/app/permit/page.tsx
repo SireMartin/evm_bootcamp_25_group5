@@ -21,8 +21,6 @@ const PERMIT_TYPES = {
   ],
 };
 
-type TransactionStatus = "idle" | "pending" | "success" | "error";
-
 export default function PermitPage() {
   const { address } = useAccount();
   const { targetNetwork } = useTargetNetwork();
@@ -32,7 +30,6 @@ export default function PermitPage() {
   const [nonce, setNonce] = useState<bigint>(0n);
   const [isLoading, setIsLoading] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string>("");
-  const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const { signTypedDataAsync } = useSignTypedData();
@@ -48,25 +45,10 @@ export default function PermitPage() {
     args: [address],
   });
 
-  const checkTransactionStatus = async (hash: string) => {
-    try {
-      const response = await fetch(`/api/permit/status?hash=${hash}`);
-      if (!response.ok) {
-        throw new Error("Failed to check transaction status");
-      }
-      const data = await response.json();
-      return data.status;
-    } catch (error) {
-      console.error("Error checking transaction status:", error);
-      return "error";
-    }
-  };
-
   const handlePermit = async () => {
     try {
       console.log("[DEBUG] Starting permit process...");
       setIsLoading(true);
-      setTransactionStatus("pending");
       setErrorMessage("");
       
       if (!address) {
@@ -85,14 +67,12 @@ export default function PermitPage() {
       // Validate email and amount before proceeding
       if (!email || email.trim() === '') {
         setErrorMessage("Please enter an email address");
-        setTransactionStatus("error");
         setIsLoading(false);
         return;
       }
 
       if (!amount || Number(amount) <= 0) {
         setErrorMessage("Please enter a valid amount greater than 0");
-        setTransactionStatus("error"); 
         setIsLoading(false);
         return;
       }
@@ -203,23 +183,9 @@ export default function PermitPage() {
       const result = await response.json();
       console.log("[DEBUG] Backend response:", result);
       setTransactionHash(result.transactionHash);
-      
-      // Check transaction status periodically
-      console.log("[DEBUG] Starting transaction status checks...");
-      const checkStatus = async () => {
-        const status = await checkTransactionStatus(result.transactionHash);
-        console.log("[DEBUG] Transaction status:", status);
-        setTransactionStatus(status);
-        if (status === "pending") {
-          setTimeout(checkStatus, 5000); // Check again in 5 seconds
-        }
-      };
-      
-      checkStatus();
     } catch (error) {
       console.error("[ERROR] Permit process failed:", error);
       setErrorMessage(error instanceof Error ? error.message : "Unknown error occurred");
-      setTransactionStatus("error");
     } finally {
       setIsLoading(false);
     }
@@ -229,7 +195,7 @@ export default function PermitPage() {
     <div className="flex items-center flex-col flex-grow pt-10">
       <div className="px-5">
         <h1 className="text-center">
-          <span className="block text-4xl font-bold">Potato Token Permit</span>
+          <span className="block text-4xl font-bold">Order Potatoes</span>
         </h1>
         
         <div className="mt-8 max-w-md mx-auto">
@@ -293,20 +259,6 @@ export default function PermitPage() {
                 >
                   {transactionHash}
                 </a>
-              </p>
-              <p className="text-lg">
-                Status:{" "}
-                <span
-                  className={`font-bold ${
-                    transactionStatus === "success"
-                      ? "text-success"
-                      : transactionStatus === "error"
-                      ? "text-error"
-                      : "text-warning"
-                  }`}
-                >
-                  {transactionStatus}
-                </span>
               </p>
             </div>
           )}
