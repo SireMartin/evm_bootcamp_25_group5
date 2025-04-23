@@ -6,7 +6,7 @@ A custom ERC20 Token called **`POTATO`**
  [Potato-Vendor](https://github.com/SireMartin/evm_bootcamp_25_group5/tree/main/potatoVendor/potato-vendor)
  
 ## What is Potato Shop
-The Potatos Shop is a Decentralized Application (DApp) that facilitates the issuance, management and secure vending of a custom ERC20 token called **POTATO**.  
+The Potatos Shop is a Decentralized Application (DApp) that facilitates the issuance, management and secure vending of a custom ERC20 token called **`POTATO`**.  
 This is accomplished by registering the address of the buyer to a locker number, and letting the buyer open the locker by signing a message using ECDSA.
 
 ## Description
