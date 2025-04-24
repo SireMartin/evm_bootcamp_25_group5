@@ -31,45 +31,193 @@ This is accomplished by registering the address of the buyer to a locker number,
   - *Locker Security*
     - Buyers can open their assigned lockers by signing a message and submitting the signature to the contract
     - The contract validates the signature to ensure only the rightful owner can access the locker
-   
-## Working Mechanism
-
-1. **<span style="font-size: 16px;">Setup</span>**
-
-  - The `PotatoToken` contract is deployed, and roles are assigned:
-    - The admin assigns the `Minter Role` to the vendor contract or other authorized accounts
-    - This allows tokens to be minted for distribution
-  - The `PotatoVendor` contract is deployed with the address of the `PotatoToken` contract
-
-2. **<span style="font-size: 16px;">Token Minting</span>**
-
-  - The vendor contract (or other authorized minters) mints new `POTATO` tokens as needed:
-    - For example, minting tokens to distribute to buyers or to keep tokens in the vendor contract for vending
-
-3. **<span style="font-size: 16px;">Token Purchase</span>**
-
-  - Buyers interact with the `PotatoVendor` contract to purchase tokens:
-    - The buyer approves the vendor contract to spend tokens using the `permit` functionality (off-chain signature)
-    - The vendor processes the purchase and emits an event to notify the backend system or external services
-
-4. **<span style="font-size: 16px;">Locker Assignment</span>**
-
-  - After a successful purchase, the vendor assigns a locker to the buyer:
-    - The locker number is dynamically determined using a pseudo-random mechanism
-    - The locker is mapped to the buyer's address, and an event is emitted
-
-5. **<span style="font-size: 16px;">Locker Access</span>**
-
-  - Buyers can open their assigned lockers by submitting a valid cryptographic signature:
-    - The buyer signs the locker number off-chain
-    - The vendor contract verifies the signature and ensures it matches the buyer's address
-    - If valid, the locker is opened, and the mapping is cleared for future use.
 
 ## Prerequisites
-The following steps should be completed before using the Potato Shop DApp
 
-## Requirements
+- [Node.js](https://nodejs.org/en/docs/guides/getting-started-guide/)
+- [npm](https://docs.npmjs.com/cli/v9/configuring-npm/install)
+- [yarn](https://yarnpkg.com/getting-started/install)
+- Basic understanding of Ethereum and Web3
 
-## Deployment
+### 1. Getting Started - Frontend setup
+
+- **<span style="font-size: 16px;">Install yarn</span>**
+
+  Install yarn if you don't have it
+
+  ```bash
+    corepack enable
+  ```
+
+- **<span style="font-size: 16px;">Create a project folder</span>**
+
+  Create a project folder, move inside the project folder created and clone the scaffold-eth repo
+
+  ```bash
+    cd <project_folder>
+    git clone https://github.com/scaffold-eth/scaffold-eth-2.git
+  ```
+
+- **<span style="font-size: 16px;">Initialize the project</span>**
+
+  ```bash
+    cd scaffold-eth-2
+    yarn install
+  ```
+
+- **<span style="font-size: 16px;">Copy the following files</span>**
+
+    Copy the contract files:
+
+    ```bash
+    .../scaffold-eth-2/packages/hardhat/contracts/PotatoToken.sol
+    .../scaffold-eth-2/packages/hardhat/contracts/PotatoVendor.sol
+    ```
+
+    Copy the contract deployment scripts:
+
+    ```bash
+    .../scaffold-eth-2/packages/hardhat/deploy/00_deploy_potato_contracts.ts
+    ```
+
+    Copy the test file:
+
+    ```bash
+    .../scaffold-eth-2/packages/hardhat/test/PotatoVendorTest.ts
+    ```
+
+    Create the following paths and copy the following files:
+
+    ```bash
+    .../scaffold-eth-2/packages/nextjs/app/api/locker/route.ts
+    .../scaffold-eth-2/packages/nextjs/app/api/locker/open/route.ts
+    .../scaffold-eth-2/packages/nextjs/app/api/permit/route.ts
+    .../scaffold-eth-2/packages/nextjs/app/api/permit/status/route.ts
+    .../scaffold-eth-2/packages/nextjs/app/locker/page.tsx
+    .../scaffold-eth-2/packages/nextjs/app/permit/page.tsx
+    .../scaffold-eth-2/packages/nextjs/app/page.tsx
+    .../scaffold-eth-2/packages/nextjs/app/components/Header.tsx
+    .../scaffold-eth-2/packages/nextjs/app/contracts/deployedContracts.ts
+    .../scaffold-eth-2/packages/nextjs/public/images/super_potato.png
+    ```
+
+    Add the .env file on the following path:
+
+    ```bash
+    .../scaffold-eth-2/packages/nextjs/.env
+    ```
+
+### 2. Getting Started - Backend setup
+
+- **<span style="font-size: 16px;">Create a project folder</span>**
+
+  Create a project folder and move inside it
+
+  ```bash
+    mkdir my-daemon
+    cd my-daemon
+  ```
+
+ - **<span style="font-size: 16px;">Initialize the project</span>**
+
+  ```bash
+    npm init -y
+  ```
+
+ - **<span style="font-size: 16px;">Install dependencies</span>**
+
+   - ethers: for interacting with Ethereum smart contracts
+   - dotenv: for loading environment variables
+   - nodemailer: for sending emails
+   - typescript: for TypeScript support
+   - ts-node: to run TypeScript files directly
+
+   ```bash
+     npm install ethers dotenv nodemailer
+     npm install --save-dev typescript ts-node
+   ```
+
+- **<span style="font-size: 16px;">Copy the following files</span>**
+
+  Copy the daemon file
+
+  ```bash
+  .../my-daemon/daemon.ts
+  ```
+
+- **<span style="font-size: 16px;">Add environment variables</span>**
+
+  Add the .env file
+
+### 3. Getting Started - Environment variables setup
+
+The .env file should contain the following fields:
+
+```bash
+DEPLOYMENTS_PATH=".../scaffold-eth-2/packages/hardhat/deployments"
+EMAIL_USER=""
+EMAIL_PASS=""
+PRIVATE_KEY=""
+ALCHEMY_API_KEY=""
+POTATO_VENDOR_ADDRESS=""
+```
+
+- Set your wallet private key and API key (for contract deployment on Sepolia)
+- Set the PotatoVendor contract address once deployed
+- Set your email and password (app password needed, depending on the email provider you use)
+
+## Usage
+
+- **<span style="font-size: 16px;">Check the working environment</span>**
+
+  The project is intended for working on the Hardhat testing environment
+
+  ```bash
+  .../scaffold-eth-2/packages/nextjs/scaffold.config.ts
+  targetNetworks: [chains.hardhat],
+  ```
+
+  If you want to test it on Sepolia, modify the following file
+
+  ```bash
+  .../scaffold-eth-2/packages/nextjs/scaffold.config.ts
+  targetNetworks: [chains.sepolia],
+  ```
+
+- **<span style="font-size: 16px;">Run terminals/span>**
+
+  Open four command prompt windows in order to:
+
+  1. Deploy the smart contracts
+ 
+    ```bash
+    .../scaffold-eth-2/yarn deploy --tags Potato
+    ```
+
+    > **NOTE:** if testing on Sepolia, it is needed to target the chain for contract deployment: `yarn deploy --tags Potato --network sepolia`
+
+  2. Run the chain (required for testing on Hardhat)
+ 
+    ```bash
+    .../scaffold-eth-2/yarn chain
+    ```
+
+  3. Run the daemon
+ 
+    ```bash
+    .../my-daemon/ts-node daemon.ts
+    ```
+
+  4. Start the frontend (on http://localhost:3000)
+ 
+    ```bash
+    .../scaffold-eth-2/yarn start
+    ```
 
 ## Example
+
+
+
+## License
+
+[MIT](LICENSE) 
