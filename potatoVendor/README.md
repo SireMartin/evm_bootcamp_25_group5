@@ -188,27 +188,29 @@ POTATO_VENDOR_ADDRESS=""
 
   Open four command prompt windows in order to:
 
-  1. Deploy the smart contracts
+  - Deploy the smart contracts
  
     ```bash
     .../scaffold-eth-2/yarn deploy --tags Potato
     ```
 
+    Once deployed, pick up the PotatoVendor contract address and put it in the .env file
+
     > **NOTE:** if testing on Sepolia, it is needed to target the chain for contract deployment: `yarn deploy --tags Potato --network sepolia`
 
-  2. Run the chain (required for testing on Hardhat)
+  - Run the chain (required for testing on Hardhat)
  
     ```bash
     .../scaffold-eth-2/yarn chain
     ```
 
-  3. Run the daemon
+  - Run the daemon
  
     ```bash
     .../my-daemon/ts-node daemon.ts
     ```
 
-  4. Start the frontend (on http://localhost:3000)
+  - Start the frontend (on http://localhost:3000)
  
     ```bash
     .../scaffold-eth-2/yarn start
