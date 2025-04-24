@@ -5,9 +5,9 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
-  31337: {
+  11155111: {
     Potato: {
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      address: "0x644d2BC5176Eed48ca123feBb83Efbb853d6fa34",
       abi: [
         {
           inputs: [
@@ -803,7 +803,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     PotatoVendor: {
-      address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      address: "0x68420488e634016B5e7327B9320c2893fa0966Ab",
       abi: [
         {
           inputs: [
