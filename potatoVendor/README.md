@@ -184,7 +184,7 @@ POTATO_VENDOR_ADDRESS=""
   targetNetworks: [chains.sepolia],
   ```
 
-- **<span style="font-size: 16px;">Run terminals/span>**
+- **<span style="font-size: 16px;">Run terminals</span>**
 
   Open four command prompt windows in order to:
 
