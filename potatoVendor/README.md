@@ -39,182 +39,26 @@ This is accomplished by registering the address of the buyer to a locker number,
 - [yarn](https://yarnpkg.com/getting-started/install)
 - Basic understanding of Ethereum and Web3
 
-### 1. Getting Started - Frontend setup
+### 1. Start the deamon
 
-- **<span style="font-size: 16px;">Install yarn</span>**
+[Potato-daemon](https://github.com/SireMartin/evm_bootcamp_25_group5/tree/main/potatoVendor/potato-daemon)
 
-  Install yarn if you don't have it
-
-  ```bash
-    corepack enable
-  ```
-
-- **<span style="font-size: 16px;">Create a project folder</span>**
-
-  Create a project folder, move inside the project folder created and clone the scaffold-eth repo
-
-  ```bash
-    cd <project_folder>
-    git clone https://github.com/scaffold-eth/scaffold-eth-2.git
-  ```
-
-- **<span style="font-size: 16px;">Initialize the project</span>**
-
-  ```bash
-    cd scaffold-eth-2
-    yarn install
-  ```
-
-- **<span style="font-size: 16px;">Copy the following files</span>**
-
-    Copy the contract files:
-
-    ```bash
-    .../scaffold-eth-2/packages/hardhat/contracts/PotatoToken.sol
-    .../scaffold-eth-2/packages/hardhat/contracts/PotatoVendor.sol
-    ```
-
-    Copy the contract deployment scripts:
-
-    ```bash
-    .../scaffold-eth-2/packages/hardhat/deploy/00_deploy_potato_contracts.ts
-    ```
-
-    Copy the test file:
-
-    ```bash
-    .../scaffold-eth-2/packages/hardhat/test/PotatoVendorTest.ts
-    ```
-
-    Create the following paths and copy the following files:
-
-    ```bash
-    .../scaffold-eth-2/packages/nextjs/app/api/locker/route.ts
-    .../scaffold-eth-2/packages/nextjs/app/api/locker/open/route.ts
-    .../scaffold-eth-2/packages/nextjs/app/api/permit/route.ts
-    .../scaffold-eth-2/packages/nextjs/app/api/permit/status/route.ts
-    .../scaffold-eth-2/packages/nextjs/app/locker/page.tsx
-    .../scaffold-eth-2/packages/nextjs/app/permit/page.tsx
-    .../scaffold-eth-2/packages/nextjs/app/page.tsx
-    .../scaffold-eth-2/packages/nextjs/app/components/Header.tsx
-    .../scaffold-eth-2/packages/nextjs/app/contracts/deployedContracts.ts
-    .../scaffold-eth-2/packages/nextjs/public/images/super_potato.png
-    ```
-
-    Add the .env file on the following path:
-
-    ```bash
-    .../scaffold-eth-2/packages/nextjs/.env
-    ```
-
-### 2. Getting Started - Backend setup
-
-- **<span style="font-size: 16px;">Create a project folder</span>**
-
-  Create a project folder and move inside it
-
-  ```bash
-    mkdir my-daemon
-    cd my-daemon
-  ```
-
- - **<span style="font-size: 16px;">Initialize the project</span>**
-
-  ```bash
-    npm init -y
-  ```
-
- - **<span style="font-size: 16px;">Install dependencies</span>**
-
-   - ethers: for interacting with Ethereum smart contracts
-   - dotenv: for loading environment variables
-   - nodemailer: for sending emails
-   - typescript: for TypeScript support
-   - ts-node: to run TypeScript files directly
-
-   ```bash
-     npm install ethers dotenv nodemailer
-     npm install --save-dev typescript ts-node
-   ```
-
-- **<span style="font-size: 16px;">Copy the following files</span>**
-
-  Copy the daemon file
-
-  ```bash
-  .../my-daemon/daemon.ts
-  ```
-
-- **<span style="font-size: 16px;">Add environment variables</span>**
-
-  Add the .env file
-
-### 3. Getting Started - Environment variables setup
-
-The .env file should contain the following fields:
-
-```bash
-DEPLOYMENTS_PATH=".../scaffold-eth-2/packages/hardhat/deployments"
-EMAIL_USER=""
-EMAIL_PASS=""
-PRIVATE_KEY=""
-ALCHEMY_API_KEY=""
-POTATO_VENDOR_ADDRESS=""
+create a .env file in the potato-daemon dir and provide the following parameters:
+```
+RPC_URL=https://coston2-api.flare.network/ext/C/rpc
+PRIVATE_KEY=your private key to call the contract
+POTATO_VENDOR_ADDRESS=0xdBeDbF6dF739EC8FCd0017BdFe1afe203df566B2
+EMAIL_USER=
+EMAIL_PASS=
+```
+start the daemon:
+```
+npm run start:dev`
 ```
 
-- Set your wallet private key and API key (for contract deployment on Sepolia)
-- Set the PotatoVendor contract address once deployed
-- Set your email and password (app password needed, depending on the email provider you use)
+### 2. Navigate to the project
 
-## Usage
-
-- **<span style="font-size: 16px;">Check the working environment</span>**
-
-  The project is intended for working on the Hardhat testing environment
-
-  ```bash
-  .../scaffold-eth-2/packages/nextjs/scaffold.config.ts
-  targetNetworks: [chains.hardhat],
-  ```
-
-  If you want to test it on Sepolia, modify the following file
-
-  ```bash
-  .../scaffold-eth-2/packages/nextjs/scaffold.config.ts
-  targetNetworks: [chains.sepolia],
-  ```
-
-- **<span style="font-size: 16px;">Run terminals</span>**
-
-  Open four command prompt windows in order to:
-
-  - Deploy the smart contracts
- 
-    ```bash
-    .../scaffold-eth-2/yarn deploy --tags Potato
-    ```
-
-    Once deployed, pick up the PotatoVendor contract address and put it in the .env file
-
-    > **NOTE:** if testing on Sepolia, it is needed to target the chain for contract deployment: `yarn deploy --tags Potato --network sepolia`
-
-  - Run the chain (required for testing on Hardhat)
- 
-    ```bash
-    .../scaffold-eth-2/yarn chain
-    ```
-
-  - Run the daemon
- 
-    ```bash
-    .../my-daemon/ts-node daemon.ts
-    ```
-
-  - Start the frontend (on http://localhost:3000)
- 
-    ```bash
-    .../scaffold-eth-2/yarn start
-    ```
+[Potato-Shop](https://potato-vendor.vercel.app)
 
 ## Example
 
