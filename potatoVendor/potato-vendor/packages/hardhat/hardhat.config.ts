@@ -39,7 +39,7 @@ const config: HardhatUserConfig = {
       },
     ],
   },
-  defaultNetwork: "sepolia",
+  defaultNetwork: "coston2",
   namedAccounts: {
     deployer: {
       // By default, it will take the first Hardhat account as the deployer
@@ -62,6 +62,10 @@ const config: HardhatUserConfig = {
     sepolia: {
       url: `https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`,
       accounts: [deployerPrivateKey],
+    },
+    coston2: {
+      url: "https://coston2-api.flare.network/ext/C/rpc", // Replace with actual Coston2 RPC endpoint
+      accounts: [deployerPrivateKey]
     },
     arbitrum: {
       url: `https://arb-mainnet.g.alchemy.com/v2/${providerApiKey}`,

@@ -6,11 +6,14 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import {ContractRegistry} from "@flarenetwork/flare-periphery-contracts/coston2/ContractRegistry.sol";
+import {RandomNumberV2Interface} from "@flarenetwork/flare-periphery-contracts/coston2/RandomNumberV2Interface.sol";
 
 contract PotatoVendor is AccessControl {
     IERC20 public immutable _potatoToken;
     IERC20Permit public immutable _potatoTokenPermit;
     mapping(uint8 => address) public _lockerToBuyer;
+    RandomNumberV2Interface internal randomV2;
 
     error NoAvailableLockers();
 
@@ -23,6 +26,7 @@ contract PotatoVendor is AccessControl {
         _grantRole(DEFAULT_ADMIN_ROLE, deployer);
         _potatoToken = IERC20(tokenAddress);
         _potatoTokenPermit = IERC20Permit(tokenAddress);
+        randomV2 = ContractRegistry.getRandomNumberV2();
     }
 
      function permit(
@@ -52,7 +56,8 @@ contract PotatoVendor is AccessControl {
     function reserveLocker(address buyer) public onlyRole(DEFAULT_ADMIN_ROLE) {
         //map the buyer address to an available locker number
         unchecked {
-            uint8 lockerNumber = uint8(block.prevrandao % 256);
+            (uint256 randomNumber,,) = randomV2.getRandomNumber();
+            uint8 lockerNumber = uint8(randomNumber % 256);
             for(uint8 i = 0; i < 256; ++i) {
                 if(_lockerToBuyer[lockerNumber] == address(0)) {
                     _lockerToBuyer[lockerNumber] = buyer;

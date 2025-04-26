@@ -7,9 +7,13 @@ import scaffoldConfig from "~~/scaffold.config";
 // Initialize Viem Clients
 const targetNetwork = scaffoldConfig.targetNetworks[0];
 const deployerPrivateKey = process.env.DEPLOYER_PRIVATE_KEY;
+const rpcUrl = process.env.RPC_URL;
 
 if (!deployerPrivateKey) {
   throw new Error("DEPLOYER_PRIVATE_KEY not set in environment variables. Please set it in packages/nextjs/.env.local");
+}
+if (!rpcUrl) {
+  throw new Error("RPC_URL not set in environment variables. Please set it in packages/nextjs/.env.local");
 }
 
 const deployerAccount = privateKeyToAccount(`0x${deployerPrivateKey}`);
@@ -17,12 +21,12 @@ const deployerAccount = privateKeyToAccount(`0x${deployerPrivateKey}`);
 const walletClient = createWalletClient({
   account: deployerAccount,
   chain: targetNetwork,
-  transport: http(`https://eth-sepolia.g.alchemy.com/v2/${scaffoldConfig.alchemyApiKey}`),
+  transport: http(process.env.RPC_URL),
 }).extend(publicActions);
 
 const publicClient = createPublicClient({
   chain: targetNetwork,
-  transport: http(`https://eth-sepolia.g.alchemy.com/v2/${scaffoldConfig.alchemyApiKey}`),
+  transport: http(process.env.RPC_URL),
 });
 
 export async function POST(request: Request) {

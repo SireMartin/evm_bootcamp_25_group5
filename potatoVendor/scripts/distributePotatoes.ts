@@ -1,5 +1,5 @@
 import { parseEther, createWalletClient, createPublicClient, http, Address, isAddress } from 'viem';
-import { sepolia } from 'viem/chains';
+import { flareTestnet, sepolia } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { abi } from '../potato-vendor/packages/hardhat/artifacts/contracts/PotatoToken.sol/Potato.json'
@@ -20,14 +20,14 @@ async function distributePotatoes() {
 
     const publicClient = createPublicClient({
         chain: sepolia,
-        transport: http(`https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`)
+        transport: http(process.env.RPC_URL)
     })
     //console.log(process.env.MINTER_PRIVATE_KEY);
     const minterAccount = privateKeyToAccount(`0x${process.env.MINTER_PRIVATE_KEY}`);
     const minterClient = createWalletClient({
         account: minterAccount,
-        chain: sepolia,
-        transport: http(`https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`)
+        chain: flareTestnet,
+        transport: http(process.env.RPC_URL)
     });
 
     //console.log(abi);
